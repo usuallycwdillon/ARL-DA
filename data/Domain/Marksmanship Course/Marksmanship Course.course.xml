@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Course xmlns:ns2="http://GIFT.com/common" name="Marksmanship Course" version="6.0.8">
+    <ns2:surveyContext>74</ns2:surveyContext>
+    <transitions>
+        <Guidance>
+            <transitionName>Example Guidance</transitionName>
+            <message>
+                <content>&lt;p style="font-family: Arial; font-size: 20px; text-align: center;"&gt;Welcome to GIFT!&lt;br&gt;&lt;br&gt;This is an example of a "Guidance" transition authored using the GIFT Authoring Tool (GAT)&lt;br&gt;&lt;br&gt;Transitions can be used to present lesson material, elicit surveys, provide feedback during training applications, and so much more.&lt;/span&gt;</content>
+            </message>
+            <fullScreen>true</fullScreen>
+        </Guidance>
+        <PresentSurvey>
+            <transitionName>New Present Survey</transitionName>
+            <ns2:GIFTSurveyKey>Marksmanship Survey_ARL DA</ns2:GIFTSurveyKey>
+        </PresentSurvey>
+    </transitions>
+</Course>
