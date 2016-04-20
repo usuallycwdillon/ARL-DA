@@ -14,23 +14,15 @@ class surveyDataGenerator(object):
     """
     The surveyDataGenerator Class takes parameters for GIFT course survey JSON file and generates data to simulate
     students taking the survey. Though, in our test case survey, the pre- and post-course surveys are only written
-    out once, so we have to fake having the whole survey.
-
-    This faking part is a problem, because the survey is divided into 'pages' and there is no way to programmatically
-    know which 'page' belongs to the testing sections. E.g., this survey file includes one attitude survey (with three
-    pages--motivation, self-efficacy, anxiety), one lesson survey (with four pages--no reason, just an artifact of
-    writing the survey.) and one reaction survey (with two pages (process and overall).  The attitude survey and the
-    lesson survey should each appear twice (pre-lesson and post-lesson) and there should be a fourth survey on the
-    lesson context (current location, course instructor name, etc.).
-
-    Additionally, in order to show some significance of our simulated course, the simulated responses to the pre-lesson
-    surveys and post-lesson surveys must show that some students benefit from taking the course.
+    out once, so we have to fake having the whole survey. See comments in each section for instructions specific to that
+    section of the survey.
     """
     def __init__(self, learners, survey):
         """
         survey is a GIFT survey, usually named 'something.course.survey.export'. The survey is nested json file that
         includes lists, so there's a lot of digging to get the useful stuff out of it. The goal is to automate the
         the process of identifying the structure and scoring of a survey.
+
         learners is a list of learners so that the survey is keyed to learners
         """
         super(surveyDataGenerator, self).__init__()
@@ -50,7 +42,10 @@ class surveyDataGenerator(object):
         # survey pages can have 1 or more 'Elements'
 
 
-        ## This section generates data for pre-lesson attitude survey responses
+
+
+
+        ## This section
 
         # These are for setting up random attitude survey responses
         op_choices = ['Strongly Agree', 'Agree', 'Somewhat Agree', 'Neutral', 'Somewhat Disagree', 'Disagree',
@@ -70,6 +65,12 @@ class surveyDataGenerator(object):
 
 
         ## This section generates data for post-lesson attitude survey responses
+        """
+         This section does not exist in the survey file. It must be duplicated to simulate post-lesson attitude changes.
+         The data should probably show that novice learners have a better attitude after taking the course, with a few
+         outliers who felt like the lesson went badly.
+         Experts should feel like the course was stupid/easy and show little improvement.
+        """
         post_op_weights = [.39, .29, .14, .09, .05, .03, .01]  # there is no math here; just an intuitive pattern
 
         #  Motivation - post-lesson
@@ -94,7 +95,12 @@ class surveyDataGenerator(object):
 
 
         ## This section generates data for post-lesson knowledge and skills
-
+        """
+         Similar to teh post-lesson attitude survey, the post-lesson knowledge/skill survey should show a lot of improvement
+         for inexperienced and novice learners and very little (possilby negative) improvement for experts. This is teh
+         data that the ISDs want to evaluate with population t-tests and mixed ANOVA by sub-group; so there should be
+         something to show.
+        """
 
         #  Section 1
 
@@ -105,7 +111,8 @@ class surveyDataGenerator(object):
         #  Section 4
 
 
-        ## This section generates data for post-lesson Reactions
+        ## This section generates data for post-lesson Reactions. There is no corresponding pre-lesson survey
+
 
 
     # Methods to generate the dataframe
