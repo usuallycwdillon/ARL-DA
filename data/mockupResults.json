@@ -2,43 +2,98 @@
   {
     "Analysis": "T-test",
     "Description":"The T-test indicates... blah, blah",
-  {
-    "Data": {
-      "Category": "Marksman",
+    "Data":[
+     {"Category":"Unexperienced",
+      "T-Statistic": 0.543210,
+      "P-value": 0.956789},
+     {"Category":"Novice",
+      "T-Statistic": 0.654321,
+      "P-value": 0.856789},
+     {"Category":"Marksman",
       "T-Statistic": 0.765432,
-      "P-value": 0.456789
-    },
-  {
-    "Category": "Sharpshooter",
-    "T-Statistic": 0.876543,
-    "P-value": 0.567890
+      "P-value": 0.456789},
+     {"Category":"Sharpshooter",
+      "T-Statistic": 0.876543,
+      "P-value": 0.567890},
+    {"Category": "Expert",
+     "T-Statistic": 0.987654,
+     "P-value": 0.678901}]
   },
   {
-    "Category": "Expert",
-    "T-Statistic": 0.987654,
-    "P-value": 0.678901
-  }
-  }
-},
-  {
     "Analysis":"ANOVA",
-    "Description":"The ANOVA indicates... blah, blah, blah"
-  {
-    "Data":{
-      "Category":"Marksman",
-      "F-Statistic":12.3456,
-      "P-value":0.987654
-    },
-    {
-      "Category":"Sharpshooter",
-      "F-Statistic":13.5791,
-      "P-value":0.876543
-    },
-    {
-      "Category":"Expert",
-      "F-Statistic":9.98765,
-      "P-value":0.998877
-    }
-  }
+    "Description":"The ANOVA shows mean variance within groups as the ratio of the mean variance between subgroups and the mean variance within subgroups.",
+    "Plot":"F-statistic (y1) in grouped horizontal bar chart; group by category (x). P-value (y2) overlay line plot.",
+    "Data":[
+      {"Category":"Unexperienced",
+       "Subgroups":[ 
+        {"Sub-category":"Novice",
+         "F-Statistic":12.3456,
+         "P-value":0.917654},
+        {"Sub-category":"Marksman",
+         "F-Statistic":12.3456,
+         "P-value":0.987654},
+        {"Sub-category":"Sharpshooter",
+         "F-Statistic":13.5791,
+         "P-value":0.876543},
+        {"Sub-category":"Expert",
+         "F-Statistic":9.98765,
+         "P-value":0.998877}]},
+      {"Category":"Novice",
+       "Subgroups":[ 
+        {"Sub-category":"Unexperienced",
+         "F-Statistic":12.3456,
+         "P-value":0.917654},
+        {"Sub-category":"Marksman",
+         "F-Statistic":12.3456,
+         "P-value":0.987654},
+        {"Sub-category":"Sharpshooter",
+         "F-Statistic":13.5791,
+         "P-value":0.876543},
+        {"Sub-category":"Expert",
+         "F-Statistic":9.98765,
+         "P-value":0.998877}]},
+       {"Category":"Marksman",
+       "Subgroups":[ 
+        {"Sub-category":"Unexperienced",
+         "F-Statistic":12.3456,
+         "P-value":0.987654},
+        {"Sub-category":"Novice",
+         "F-Statistic":12.3456,
+         "P-value":0.917654}, 
+        {"Sub-category":"Sharpshooter",
+         "F-Statistic":13.5791,
+         "P-value":0.876543},
+        {"Sub-category":"Expert",
+         "F-Statistic":9.98765,
+         "P-value":0.998877}]},
+      {"Category":"Sharpshooter",
+       "Subgroups":[
+        {"Sub-category":"Unexperienced",
+         "F-Statistic":13.5791,
+         "P-value":0.876543}, 
+        {"Sub-category":"Novice",
+         "F-Statistic":12.3456,
+         "P-value":0.917654},
+        {"Sub-category":"Marksman",
+         "F-Statistic":12.3456,
+         "P-value":0.987654},
+        {"Sub-category":"Expert",
+         "F-Statistic":9.98765,
+         "P-value":0.998877}]},
+      {"Category":"Expert",
+       "Subgroups":[
+        {"Sub-category":"Unexperienced",
+         "F-Statistic":13.5791,
+         "P-value":0.876543}, 
+        {"Sub-category":"Novice",
+         "F-Statistic":12.3456,
+         "P-value":0.917654},
+        {"Sub-category":"Marksman",
+         "F-Statistic":12.3456,
+         "P-value":0.987654},
+        {"Sub-category":"Sharpshooter",
+         "F-Statistic":9.98765,
+         "P-value":0.998877}]}
+    ]
   }
 ]
