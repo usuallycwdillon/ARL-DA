@@ -39,13 +39,45 @@ class surveyDataGenerator(object):
         all_survey_pages = [p['Elements'] for p in all_surveys]
         # Now, all the survey names are in the 'all_survey_names' list and corresponding pages in 'all_survey_pages' list
 
-        # survey pages can have 1 or more 'Elements'
+        # survey pages can have 1 or more 'Elements' in a list.
+        survey_page_lengths = [len(l) for l in all_survey_pages]
+
+        questions = []
+        answers = []
+        scoring = []
+
+
+        for spn in all_survey_names:
 
 
 
 
 
-        ## This section
+        for pages in all_survey_pages:
+            for page in pages:
+                questions.append(page['Question']['Question_Text'])
+                properties = page['Question']['Properties']
+                # print properties
+
+                # Row option based format
+                row_options = properties.get('Row_Options', [])
+                if len(row_options) != 0:
+                    try:
+                        answers.append(row_options['Property_Value']['List_Options'][0]['Text'])
+                        # print(row_options['Property_Value'])
+                    except Exception, e:
+                        pass
+                else:
+                    pass
+
+                    # Question image based format
+                question_image = properties.get('Reply_Option_Set', [])
+                try:
+                    answers.append(question_image['Property_Value']['List_Options'][0]['Text'])
+                except:
+                    pass
+
+                    ## This section
 
         # These are for setting up random attitude survey responses
         op_choices = ['Strongly Agree', 'Agree', 'Somewhat Agree', 'Neutral', 'Somewhat Disagree', 'Disagree',
@@ -154,6 +186,22 @@ class surveyDataGenerator(object):
         q_list = survey_pages[]
 
 
-survey = "../data/Domain/Marksmanship Course.course.surveys.export"
+    def flatten(structure, key="", path="", flattened=None):
+        if flattened is None:
+            flattened = {}
+        if type(structure) not in (dict, list):
+            flattened[((path + "_") if path else "") + key] = structure
+        elif isinstance(structure, list):
+            for i, item in enumerate(structure):
+                flatten(item, "%d" % i, path + "_" + key, flattened)
+        else:
+            for new_key, value in structure.items():
+                flatten(value, new_key, path + "_" + key, flattened)
+        return flattened
+
+
+
+
+survey = "../data/Domain/Marksmanship Course/ModifiedMarksmanshipCourse.course.surveys.export"
 learners = "../data/person_data/tbd"
 #
