@@ -3,25 +3,27 @@
 #  This is the model
 {"SurveyName":"",
  "LearnerID":"learner_email"
- "SurveyObject":{
+ "SurveyObjects":[{
    "Question":question,
    "Type":question_type,
    "Answer":[0,0,0,0],
    "Scoring":[0,0,0,0],
    "Points":0
-  }
+  },
+  ...
+  ]
 }
 
 # This is the first object to be passed...
 {"SurveyName":"Pre-Lesson Test",
  "LearnerID":""
- "SurveyObject":{
+ "SurveyObjects":[{
    "Question":"You are clearing your M16-/M4 series weapon. When do you put the selector lever in this position (vertical) as seen in the picture?",
    "Type":"MultpleChoice",
    "Answer":[0,0,0,0],
    "Scoring":[0,0,10,0],
    "Points":0
-  }
+  }]
 }
 
 The data generation script needs to write in the 'LearnerID', choose an answer and calculate the 'Points'.

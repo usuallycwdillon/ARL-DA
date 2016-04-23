@@ -7,7 +7,7 @@ import scipy.stats as st
 import scipy as sc
 import json
 from itertools import chain
-
+from time import gmtime, strftime
 
 
 class surveyDataGenerator(object):
@@ -34,117 +34,43 @@ class surveyDataGenerator(object):
         survey_json = json.loads(self.survey)
         context = survey_json['Survey_Context_Name']
         all_surveys = survey_json['Survey_Context_Surveys'][0]['Survey_Context_Survey_Survey']['Survey_Pages']
-        num_surveys = len(all_surveys)
-        all_survey_names = [s['Survey_Page_Name'] for s in all_surveys]
-        all_survey_pages = [p['Elements'] for p in all_surveys]
+
         # Now, all the survey names are in the 'all_survey_names' list and corresponding pages in 'all_survey_pages' list
 
-        # survey pages can have 1 or more 'Elements' in a list.
-        survey_page_lengths = [len(l) for l in all_survey_pages]
+        # Now we want to generate answers for all questions in each survey in turn
 
-        questions = []
-        answers = []
-        scoring = []
+        survey_responses = []
 
+        def getSurveyData(pages):
+            page_elements = pages['Elements']
+            data_objects = getElementData(page_elements)
+            survey_response = {"SurveyName":pages['Survey_Page_Name'],
+                               "LearnerID":"",
+                               "Time":strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()),
+                               "SurveyObjects":data_objects
+                               }
+            return survey_response
 
-        for spn in all_survey_names:
+        def getElementData(page_elements):
+            survey_objects = []
+            for each_element in page_elements:
+                question_text = each_element['Question']['Question_Text']
+                question_type = each_element['Question']['Type']
+                scoring = each_element['Properties']['Answer_Weights']['Property_Value']['StringPayload']
+                scoring = scoring.split(',')
+                scoring = [int(s) for s in scoring]
+                survey_object = {"Question":question_text,
+                                 "Type":question_type,
+                                 "Answer":[0,0,0,0],
+                                 "Scoring":scoring,
+                                 "Points":0
+                                 }
+                survey_objects.append(survey_object)
+            return survey_objects
 
-
-
-
-
-        for pages in all_survey_pages:
-            for page in pages:
-                questions.append(page['Question']['Question_Text'])
-                properties = page['Question']['Properties']
-                # print properties
-
-                # Row option based format
-                row_options = properties.get('Row_Options', [])
-                if len(row_options) != 0:
-                    try:
-                        answers.append(row_options['Property_Value']['List_Options'][0]['Text'])
-                        # print(row_options['Property_Value'])
-                    except Exception, e:
-                        pass
-                else:
-                    pass
-
-                    # Question image based format
-                question_image = properties.get('Reply_Option_Set', [])
-                try:
-                    answers.append(question_image['Property_Value']['List_Options'][0]['Text'])
-                except:
-                    pass
-
-                    ## This section
-
-        # These are for setting up random attitude survey responses
-        op_choices = ['Strongly Agree', 'Agree', 'Somewhat Agree', 'Neutral', 'Somewhat Disagree', 'Disagree',
-                      'Strongly Disagree']
-        pre_op_weights = [.05, .23, .38, .18, .10, .05, .01] # there is no math here; just an intuitive pattern
-
-
-        # Motivation - prelesson
-        question_list = survey_pages
-
-
-
-        # Self-efficacy - pre-lesson
-
-
-        # Anxiety - pre-lesson
-
-
-        ## This section generates data for post-lesson attitude survey responses
-        """
-         This section does not exist in the survey file. It must be duplicated to simulate post-lesson attitude changes.
-         The data should probably show that novice learners have a better attitude after taking the course, with a few
-         outliers who felt like the lesson went badly.
-         Experts should feel like the course was stupid/easy and show little improvement.
-        """
-        post_op_weights = [.39, .29, .14, .09, .05, .03, .01]  # there is no math here; just an intuitive pattern
-
-        #  Motivation - post-lesson
-
-
-        #  Self-efficacy - post-lesson
-
-
-        #  Anxiety - post-lesson
-
-
-        ## This section generates data for pre-lesson knowledge and skills
-
-        #  Section 1
-
-        #  Section 2
-
-        #  Section 3
-
-        #  Section 4
-
-
-
-        ## This section generates data for post-lesson knowledge and skills
-        """
-         Similar to teh post-lesson attitude survey, the post-lesson knowledge/skill survey should show a lot of improvement
-         for inexperienced and novice learners and very little (possilby negative) improvement for experts. This is teh
-         data that the ISDs want to evaluate with population t-tests and mixed ANOVA by sub-group; so there should be
-         something to show.
-        """
-
-        #  Section 1
-
-        #  Section 2
-
-        #  Section 3
-
-        #  Section 4
-
-
-        ## This section generates data for post-lesson Reactions. There is no corresponding pre-lesson survey
-
+        for pages in all_surveys[1:3]:
+            data = getSurveyData(pages)
+            survey_responses.append(data)
 
 
     # Methods to generate the dataframe
@@ -177,29 +103,6 @@ class surveyDataGenerator(object):
     # Return random values between low and high
     def rand_range(self, lo, high, n):
         return np.random.randint(lo, high, n).tolist()
-
-
-    ## methods to extract questions structure from surveys
-
-    #  Extract questions from a list
-    def get_question_list(self, survey):
-        q_list = survey_pages[]
-
-
-    def flatten(structure, key="", path="", flattened=None):
-        if flattened is None:
-            flattened = {}
-        if type(structure) not in (dict, list):
-            flattened[((path + "_") if path else "") + key] = structure
-        elif isinstance(structure, list):
-            for i, item in enumerate(structure):
-                flatten(item, "%d" % i, path + "_" + key, flattened)
-        else:
-            for new_key, value in structure.items():
-                flatten(value, new_key, path + "_" + key, flattened)
-        return flattened
-
-
 
 
 survey = "../data/Domain/Marksmanship Course/ModifiedMarksmanshipCourse.course.surveys.export"
