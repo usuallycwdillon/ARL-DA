@@ -2,6 +2,7 @@
 
 import numpy as np
 from numpy.random import random_sample
+import random
 import pandas as pd
 import scipy.stats as st
 import scipy as sc
@@ -27,7 +28,18 @@ class surveyDataGenerator(object):
         """
         super(surveyDataGenerator, self).__init__()
 
-        self.learners = learners
+
+        #Read all of the learner profiles from the class
+        def readClassProfiles(json_file):
+            data = pd.read_json(json_file, orient= 'records')
+            return data
+
+        # Read in individual data from individual learner profile
+        def readIndividualLearner(json_file):
+            data = pd.read_json(json_file, typ='series', orient = 'records')
+            return data
+
+        self.learners = readClassProfiles(learners)
 
         # Extract the surveys and identify them
         self.survey = open(survey).read()
@@ -38,7 +50,6 @@ class surveyDataGenerator(object):
         # Now, all the survey names are in the 'all_survey_names' list and corresponding pages in 'all_survey_pages' list
 
         # Now we want to generate answers for all questions in each survey in turn
-
         survey_responses = []
 
         def getSurveyData(pages):
@@ -68,13 +79,113 @@ class surveyDataGenerator(object):
                 survey_objects.append(survey_object)
             return survey_objects
 
+
         for pages in all_surveys[1:3]:
             data = getSurveyData(pages)
             survey_responses.append(data)
 
+    # Raghav's stat functions from the data_simulation script to shape the simulated data distributions
+        def weighted_probs(outcomes, probabilities, size):
+            temp = np.add.accumulate(probabilities)
+            return outcomes[np.digitize(random_sample(size), temp)]
 
-    # Methods to generate the dataframe
-    def init(self):
+    # Return probabilities between 0 and 1
+        def rand_prob(n):
+            return np.random.random((n)).tolist()
+
+    # Recalculate Marksmanship based on heavy skurtosis in normal dist
+        def calculateProbabilities(input_int):
+            if input_int == 0:
+                temp = rand_prob(1)[0]
+                if temp < 0.5:
+                    return 0
+                else:
+                    return 1
+            elif input_int == 1:
+                outcomes = [0,1]
+                probs = [0.3, 0.7]
+                return weighted_probs(outcomes, probs, 1)
+            else:
+                outcomes = [0,1]
+                probs = [0.2, 0.8]
+                return weighted_probs(outcomes, probs, 1)
+
+        def fillInAnswer(answer_matrix, actual_matrix, marksman_background):
+            prob_correctness = calculateProbabilities(marksman_background)
+            print prob_correctness
+            if prob_correctness == 0:
+                # randomly select the index where it is not the right answer
+                ans_pos = [i for i,x in enumerate(actual_matrix) if x != 0]
+                # return temp[0]
+                if ans_pos == 3:
+                    random_choice = random.choice([0,1,2])
+                    l = [0,0,0,0]
+                    l[random_choice] = 1
+                    return l
+                elif ans_pos == 2:
+                    random_choice = random.choice([0,1,3])
+                    l = [0,0,0,0]
+                    l[random_choice] = 1
+                    return l
+                elif ans_pos == 1:
+                    random_choice = random.choice([0,2,3])
+                    l = [0,0,0,0]
+                    l[random_choice] = 1
+                    return l
+                else:
+                    random_choice = random.choice([1,2,3])
+                    l = [0,0,0,0]
+                    l[random_choice] = 1
+                    return l
+            else:
+                return actual_matrix
+
+        def calculateScore(answer_matrix, actual_matrix):
+            if answer_matrix == actual_matrix:
+                return max(actual_matrix)
+            else:
+                return 0
+        
+        def constructResponses():
+            pre_test_responses, post_test_responses = [],[]
+
+            # iterate over each learner
+            for i in range(len(self.learners.columns)):
+                pre_test_response = {"SurveyName": "Pre-Lesson Test",
+                            "LearnerID": self.learners[i]['email_id'],
+                            "SurveyObjects": []}
+                post_test_response = {"SurveyName": "Post-Lesson Test",
+                            "LearnerID": self.learners[i]['email_id'],
+                            "SurveyObjects": []}
+            # fill in 
+                for survey_question in survey_responses[0]["SurveyObjects"]:
+                    question = survey_question['Question']
+                    answer = fillInAnswer(survey_question['Answer'], survey_question['Scoring'], self.learners[i]['handgun_prof_recoded'])
+                    scoring = survey_question['Scoring']
+                    points = calculateScore(answer, scoring)
+                    survey_object = {"Question": question,
+                                    "Answer": answer,
+                                    "Scoring": scoring,
+                                    "Points": points}
+                    pre_test_response['SurveyObjects'] = survey_object
+                    post_test_response['SurveyObjects'] = survey_object
+
+                    pre_test_responses.append(pre_test_response)
+                    post_test_responses.append(post_test_response)
+
+                with open("../data/pre_test_responses/" + pre_test_response["LearnerID"] + ".json", "w") as data_out:
+                    json.dump(pre_test_response, data_out)
+
+                with open("../data/post_test_responses/" + post_test_response["LearnerID"] + ".json", "w") as data_out:
+                    json.dump(post_test_response, data_out)
+
+            # return pre_test_responses, post_test_responses
+                
+        constructResponses()
+
+
+
+
 
 
     """
@@ -89,22 +200,12 @@ class surveyDataGenerator(object):
     """
 
 
-    ## Raghav's stat functions from the data_simulation script to shape the simulated data distributions
+    
 
-    # Helper function to create weighted rvs
-        def weighted_probs(self, outcomes, probabilities, size):
-        temp = np.add.accumulate(probabilities)
-        return outcomes[np.digitize(random_sample(size), temp)]
 
-    # Return probabilities between 0 and 1
-    def rand_prob(self, n):
-        return np.random.random((n)).tolist()
-
-    # Return random values between low and high
-    def rand_range(self, lo, high, n):
-        return np.random.randint(lo, high, n).tolist()
 
 
 survey = "../data/Domain/Marksmanship Course/ModifiedMarksmanshipCourse.course.surveys.export"
-learners = "../data/person_data/tbd"
-#
+learners = "../data/Domain/Marksmanship Course/class.json"
+
+data = surveyDataGenerator(learners, survey)
