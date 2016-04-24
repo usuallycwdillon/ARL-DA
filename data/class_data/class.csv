@@ -1,0 +1,41 @@
+,age,gender,education_level,years_active_service,years_reserv_service,job_specialty,job_years,rank,location,is_deployed,months_deployed,anxiety,self_efficacy,motivation,handgun_prof,last_fired_wp,shrange_hours,is_markstrained,last_training,qualification_performance,is_gamer,hours_fps_week,email_id,handgun_prof_recoded
+0,19,Male,GED,4,6,,3,Officer,,1,2,96,64,61,10,4,935,0,2,,0,37,learner0@example.com,1
+1,18,Male,High School,18,4,,5,Enlisted,,1,21,76,2,13,1,3,975,0,3,,1,96,learner1@example.com,0
+2,19,Female,GED,11,3,,13,Officer,,1,26,86,39,74,15,2,648,1,2,,0,37,learner2@example.com,1
+3,18,Male,High School,2,6,,17,Enlisted,,1,15,2,78,10,18,0,561,1,5,,0,64,learner3@example.com,2
+4,18,Female,High School,16,5,,7,Enlisted,,1,26,95,52,15,6,2,88,1,4,,0,89,learner4@example.com,0
+5,19,Female,GED,2,5,,11,Officer,,1,34,87,54,47,7,2,947,0,5,,0,105,learner5@example.com,1
+6,18,Female,High School,13,7,,11,Enlisted,,1,22,29,81,96,1,1,725,0,0,,1,45,learner6@example.com,0
+7,19,Female,GED,16,2,,12,Officer,,0,30,16,19,85,8,5,1007,0,3,,1,11,learner7@example.com,1
+8,19,Male,GED,18,2,,4,Officer,,0,4,21,18,51,3,1,353,1,1,,1,71,learner8@example.com,0
+9,18,Male,High School,16,7,,2,Enlisted,,0,35,81,69,28,11,1,306,1,4,,0,24,learner9@example.com,1
+10,18,Male,High School,9,5,,4,Enlisted,,0,30,54,33,19,10,3,672,1,0,,0,7,learner10@example.com,1
+11,18,Male,High School,7,3,,6,Enlisted,,1,10,99,9,90,5,2,789,0,2,,1,97,learner11@example.com,0
+12,19,Female,GED,15,1,,1,Officer,,0,15,28,11,91,12,3,101,1,3,,1,28,learner12@example.com,1
+13,19,Female,GED,15,1,,19,Officer,,1,5,88,60,3,9,1,475,1,5,,1,77,learner13@example.com,1
+14,18,Male,High School,17,0,,5,Enlisted,,1,1,95,76,28,15,3,296,1,3,,0,98,learner14@example.com,1
+15,18,Male,High School,16,0,,1,Enlisted,,0,12,10,65,97,7,3,28,1,4,,0,23,learner15@example.com,1
+16,19,Male,GED,7,5,,19,Officer,,1,0,8,73,1,13,3,569,1,1,,1,75,learner16@example.com,1
+17,22,Female,Bachelor's Degree,2,1,,9,Officer,,1,12,58,44,65,14,1,910,0,0,,0,97,learner17@example.com,1
+18,18,Male,High School,6,5,,17,Enlisted,,0,11,43,65,24,4,2,183,0,5,,1,68,learner18@example.com,0
+19,18,Male,High School,6,7,,12,Enlisted,,0,8,93,36,86,6,1,26,0,3,,0,102,learner19@example.com,0
+20,19,Male,GED,17,1,,10,Officer,,1,0,98,78,56,12,3,407,1,3,,1,109,learner20@example.com,1
+21,18,Male,High School,12,2,,0,Enlisted,,1,9,82,1,64,14,4,181,1,3,,0,43,learner21@example.com,1
+22,19,Female,GED,3,1,,6,Officer,,1,12,19,73,20,15,5,1045,1,1,,0,44,learner22@example.com,1
+23,19,Male,GED,16,4,,6,Officer,,0,2,68,34,4,19,2,77,1,1,,0,43,learner23@example.com,2
+24,24,Male,PHD,13,1,,9,Officer,,0,2,72,17,30,12,0,867,0,1,,1,0,learner24@example.com,1
+25,18,Male,High School,14,3,,11,Enlisted,,0,26,89,89,74,13,2,828,1,3,,1,7,learner25@example.com,1
+26,18,Female,High School,15,2,,10,Enlisted,,1,3,88,91,38,5,0,944,0,1,,1,81,learner26@example.com,0
+27,20,Female,Some college,3,4,,13,Officer,,0,9,81,5,40,14,0,623,1,0,,1,118,learner27@example.com,1
+28,23,Male,Master's Degree,8,3,,13,Officer,,1,20,10,11,11,4,1,856,0,5,,1,89,learner28@example.com,0
+29,18,Male,High School,18,2,,14,Enlisted,,1,28,89,22,69,10,3,969,0,1,,1,64,learner29@example.com,1
+30,18,Female,High School,0,4,,18,Enlisted,,0,28,49,35,87,13,2,4,1,1,,1,44,learner30@example.com,1
+31,18,Male,High School,6,6,,16,Enlisted,,1,10,80,57,96,18,4,1044,0,0,,1,22,learner31@example.com,2
+32,18,Female,High School,17,2,,2,Enlisted,,1,8,69,18,15,13,3,512,0,2,,0,26,learner32@example.com,1
+33,21,Female,Associate's Degree,10,0,,4,Officer,,0,12,86,58,58,10,0,434,0,4,,1,93,learner33@example.com,1
+34,18,Male,High School,18,7,,9,Enlisted,,1,0,69,89,19,7,1,689,0,1,,0,75,learner34@example.com,1
+35,18,Male,High School,15,0,,19,Enlisted,,1,27,44,63,73,3,0,16,0,3,,0,100,learner35@example.com,0
+36,18,Male,High School,9,7,,8,Enlisted,,1,2,83,87,91,15,1,375,0,4,,1,19,learner36@example.com,1
+37,18,Male,High School,0,1,,3,Enlisted,,0,33,80,59,32,11,2,21,0,5,,1,1,learner37@example.com,1
+38,18,Male,High School,2,6,,17,Enlisted,,0,17,68,7,28,11,1,244,1,2,,1,56,learner38@example.com,1
+39,19,Male,GED,5,5,,12,Officer,,1,13,2,26,75,3,0,410,0,5,,0,47,learner39@example.com,0
