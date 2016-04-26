@@ -1,41 +1,41 @@
 ,age,gender,education_level,years_active_service,years_reserv_service,job_specialty,job_years,rank,location,is_deployed,months_deployed,anxiety,self_efficacy,motivation,handgun_prof,last_fired_wp,shrange_hours,is_markstrained,last_training,qualification_performance,is_gamer,hours_fps_week,email_id,handgun_prof_recoded
-0,19,Male,GED,4,6,,3,Officer,,1,2,96,64,61,10,4,935,0,2,,0,37,learner0@example.com,1
-1,18,Male,High School,18,4,,5,Enlisted,,1,21,76,2,13,1,3,975,0,3,,1,96,learner1@example.com,0
-2,19,Female,GED,11,3,,13,Officer,,1,26,86,39,74,15,2,648,1,2,,0,37,learner2@example.com,1
-3,18,Male,High School,2,6,,17,Enlisted,,1,15,2,78,10,18,0,561,1,5,,0,64,learner3@example.com,2
-4,18,Female,High School,16,5,,7,Enlisted,,1,26,95,52,15,6,2,88,1,4,,0,89,learner4@example.com,0
-5,19,Female,GED,2,5,,11,Officer,,1,34,87,54,47,7,2,947,0,5,,0,105,learner5@example.com,1
-6,18,Female,High School,13,7,,11,Enlisted,,1,22,29,81,96,1,1,725,0,0,,1,45,learner6@example.com,0
-7,19,Female,GED,16,2,,12,Officer,,0,30,16,19,85,8,5,1007,0,3,,1,11,learner7@example.com,1
-8,19,Male,GED,18,2,,4,Officer,,0,4,21,18,51,3,1,353,1,1,,1,71,learner8@example.com,0
-9,18,Male,High School,16,7,,2,Enlisted,,0,35,81,69,28,11,1,306,1,4,,0,24,learner9@example.com,1
-10,18,Male,High School,9,5,,4,Enlisted,,0,30,54,33,19,10,3,672,1,0,,0,7,learner10@example.com,1
-11,18,Male,High School,7,3,,6,Enlisted,,1,10,99,9,90,5,2,789,0,2,,1,97,learner11@example.com,0
-12,19,Female,GED,15,1,,1,Officer,,0,15,28,11,91,12,3,101,1,3,,1,28,learner12@example.com,1
-13,19,Female,GED,15,1,,19,Officer,,1,5,88,60,3,9,1,475,1,5,,1,77,learner13@example.com,1
-14,18,Male,High School,17,0,,5,Enlisted,,1,1,95,76,28,15,3,296,1,3,,0,98,learner14@example.com,1
-15,18,Male,High School,16,0,,1,Enlisted,,0,12,10,65,97,7,3,28,1,4,,0,23,learner15@example.com,1
-16,19,Male,GED,7,5,,19,Officer,,1,0,8,73,1,13,3,569,1,1,,1,75,learner16@example.com,1
-17,22,Female,Bachelor's Degree,2,1,,9,Officer,,1,12,58,44,65,14,1,910,0,0,,0,97,learner17@example.com,1
-18,18,Male,High School,6,5,,17,Enlisted,,0,11,43,65,24,4,2,183,0,5,,1,68,learner18@example.com,0
-19,18,Male,High School,6,7,,12,Enlisted,,0,8,93,36,86,6,1,26,0,3,,0,102,learner19@example.com,0
-20,19,Male,GED,17,1,,10,Officer,,1,0,98,78,56,12,3,407,1,3,,1,109,learner20@example.com,1
-21,18,Male,High School,12,2,,0,Enlisted,,1,9,82,1,64,14,4,181,1,3,,0,43,learner21@example.com,1
-22,19,Female,GED,3,1,,6,Officer,,1,12,19,73,20,15,5,1045,1,1,,0,44,learner22@example.com,1
-23,19,Male,GED,16,4,,6,Officer,,0,2,68,34,4,19,2,77,1,1,,0,43,learner23@example.com,2
-24,24,Male,PHD,13,1,,9,Officer,,0,2,72,17,30,12,0,867,0,1,,1,0,learner24@example.com,1
-25,18,Male,High School,14,3,,11,Enlisted,,0,26,89,89,74,13,2,828,1,3,,1,7,learner25@example.com,1
-26,18,Female,High School,15,2,,10,Enlisted,,1,3,88,91,38,5,0,944,0,1,,1,81,learner26@example.com,0
-27,20,Female,Some college,3,4,,13,Officer,,0,9,81,5,40,14,0,623,1,0,,1,118,learner27@example.com,1
-28,23,Male,Master's Degree,8,3,,13,Officer,,1,20,10,11,11,4,1,856,0,5,,1,89,learner28@example.com,0
-29,18,Male,High School,18,2,,14,Enlisted,,1,28,89,22,69,10,3,969,0,1,,1,64,learner29@example.com,1
-30,18,Female,High School,0,4,,18,Enlisted,,0,28,49,35,87,13,2,4,1,1,,1,44,learner30@example.com,1
-31,18,Male,High School,6,6,,16,Enlisted,,1,10,80,57,96,18,4,1044,0,0,,1,22,learner31@example.com,2
-32,18,Female,High School,17,2,,2,Enlisted,,1,8,69,18,15,13,3,512,0,2,,0,26,learner32@example.com,1
-33,21,Female,Associate's Degree,10,0,,4,Officer,,0,12,86,58,58,10,0,434,0,4,,1,93,learner33@example.com,1
-34,18,Male,High School,18,7,,9,Enlisted,,1,0,69,89,19,7,1,689,0,1,,0,75,learner34@example.com,1
-35,18,Male,High School,15,0,,19,Enlisted,,1,27,44,63,73,3,0,16,0,3,,0,100,learner35@example.com,0
-36,18,Male,High School,9,7,,8,Enlisted,,1,2,83,87,91,15,1,375,0,4,,1,19,learner36@example.com,1
-37,18,Male,High School,0,1,,3,Enlisted,,0,33,80,59,32,11,2,21,0,5,,1,1,learner37@example.com,1
-38,18,Male,High School,2,6,,17,Enlisted,,0,17,68,7,28,11,1,244,1,2,,1,56,learner38@example.com,1
-39,19,Male,GED,5,5,,12,Officer,,1,13,2,26,75,3,0,410,0,5,,0,47,learner39@example.com,0
+0,18,Male,High School,17,5,,17,Enlisted,,0,18,53,91,41,16,0,811,1,3,Marksman,1,43,learner0@example.com,2
+1,19,Male,GED,18,2,,14,Officer,,1,22,57,34,89,0,3,842,0,1,Sharpshooter,0,44,learner1@example.com,0
+2,19,Male,GED,11,2,,6,Officer,,1,14,26,95,21,17,2,716,1,5,Marksman,1,67,learner2@example.com,2
+3,19,Male,GED,14,0,,9,Officer,,0,9,14,69,3,16,3,926,0,3,Novice,1,39,learner3@example.com,2
+4,18,Male,High School,7,5,,0,Enlisted,,0,8,39,74,28,16,5,443,1,5,Marksman,0,80,learner4@example.com,2
+5,19,Male,GED,16,1,,4,Officer,,1,4,90,66,4,19,3,824,0,4,Novice,0,119,learner5@example.com,2
+6,19,Female,GED,17,3,,3,Officer,,1,24,87,41,95,14,2,348,0,5,Novice,0,58,learner6@example.com,1
+7,18,Male,High School,3,5,,8,Enlisted,,0,17,36,36,92,8,5,929,1,1,Marksman,0,4,learner7@example.com,1
+8,18,Male,High School,6,4,,18,Enlisted,,0,4,4,18,91,11,1,304,1,2,Marksman,1,93,learner8@example.com,1
+9,19,Male,GED,18,5,,15,Officer,,0,2,65,75,26,5,5,497,0,1,Sharpshooter,0,85,learner9@example.com,0
+10,19,Male,GED,19,7,,15,Officer,,1,24,23,90,57,6,4,633,1,4,Marksman,0,35,learner10@example.com,0
+11,18,Male,High School,8,0,,18,Enlisted,,1,18,93,10,39,14,5,545,1,4,Marksman,1,16,learner11@example.com,1
+12,19,Male,GED,8,1,,15,Officer,,0,32,88,57,66,16,2,564,1,3,Marksman,0,47,learner12@example.com,2
+13,19,Female,GED,16,3,,6,Officer,,0,23,66,3,97,0,5,479,0,5,Sharpshooter,1,67,learner13@example.com,0
+14,18,Male,High School,11,7,,16,Enlisted,,1,26,44,79,3,19,0,77,0,1,Novice,0,90,learner14@example.com,2
+15,18,Male,High School,3,7,,14,Enlisted,,0,9,81,44,80,2,0,178,1,5,Marksman,0,104,learner15@example.com,0
+16,19,Male,GED,11,3,,2,Officer,,0,2,4,76,6,5,1,549,1,5,Marksman,0,51,learner16@example.com,0
+17,19,Male,GED,8,5,,19,Officer,,1,4,22,34,70,3,1,646,1,1,Marksman,0,61,learner17@example.com,0
+18,19,Female,GED,7,3,,2,Officer,,0,31,90,46,41,6,5,152,0,3,Novice,0,88,learner18@example.com,0
+19,19,Female,GED,6,2,,17,Officer,,1,19,38,24,66,0,3,982,0,3,Sharpshooter,1,50,learner19@example.com,0
+20,19,Female,GED,16,0,,5,Officer,,0,23,3,71,99,0,5,497,0,2,Sharpshooter,0,17,learner20@example.com,0
+21,19,Female,GED,15,5,,3,Officer,,0,20,95,25,82,8,1,503,0,4,Novice,0,81,learner21@example.com,1
+22,19,Female,GED,14,1,,11,Officer,,1,26,89,22,29,2,0,902,1,1,Marksman,1,22,learner22@example.com,0
+23,18,Male,High School,0,4,,2,Enlisted,,0,12,45,75,12,1,0,710,0,2,Sharpshooter,1,71,learner23@example.com,0
+24,18,Male,High School,0,5,,8,Enlisted,,1,33,76,64,9,3,2,821,1,0,Marksman,0,119,learner24@example.com,0
+25,19,Male,GED,14,2,,13,Officer,,0,3,54,90,36,7,0,768,1,4,Marksman,1,40,learner25@example.com,1
+26,19,Male,GED,12,0,,2,Officer,,1,9,56,76,85,2,4,940,0,2,Sharpshooter,1,15,learner26@example.com,0
+27,18,Female,High School,5,6,,12,Enlisted,,0,2,40,72,66,9,1,44,0,4,Novice,1,39,learner27@example.com,1
+28,19,Female,GED,19,2,,10,Officer,,0,29,44,35,71,2,2,994,1,5,Marksman,1,52,learner28@example.com,0
+29,20,Female,Some college,1,2,,18,Officer,,0,19,49,63,99,12,4,72,0,0,Novice,0,74,learner29@example.com,1
+30,18,Male,High School,5,6,,12,Enlisted,,1,19,42,19,36,7,2,374,0,3,Novice,0,21,learner30@example.com,1
+31,18,Female,High School,1,2,,13,Enlisted,,0,11,69,50,61,11,3,64,1,0,Marksman,0,12,learner31@example.com,1
+32,19,Female,GED,19,3,,13,Officer,,0,26,33,9,86,13,1,261,0,3,Novice,0,69,learner32@example.com,1
+33,19,Male,GED,8,2,,9,Officer,,0,27,8,88,28,13,3,408,1,3,Marksman,1,86,learner33@example.com,1
+34,19,Male,GED,13,5,,14,Officer,,0,27,49,43,63,8,2,760,0,4,Novice,1,38,learner34@example.com,1
+35,18,Female,High School,16,1,,12,Enlisted,,1,13,66,61,35,0,4,61,1,4,Marksman,0,16,learner35@example.com,0
+36,18,Male,High School,2,3,,17,Enlisted,,0,19,26,24,50,12,0,401,1,5,Marksman,0,26,learner36@example.com,1
+37,18,Male,High School,14,5,,13,Enlisted,,0,7,43,56,68,0,5,799,1,2,Marksman,0,17,learner37@example.com,0
+38,19,Male,GED,12,4,,2,Officer,,0,35,11,79,16,12,0,57,0,3,Novice,1,49,learner38@example.com,1
+39,19,Male,GED,15,2,,19,Officer,,1,7,30,33,91,5,4,914,1,2,Marksman,1,68,learner39@example.com,0

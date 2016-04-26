@@ -3,6 +3,7 @@
 import numpy as np
 from numpy.random import random_sample
 import random
+import copy
 import pandas as pd
 import scipy.stats as st
 import scipy as sc
@@ -47,9 +48,8 @@ class surveyDataGenerator(object):
         context = survey_json['Survey_Context_Name']
         all_surveys = survey_json['Survey_Context_Surveys'][0]['Survey_Context_Survey_Survey']['Survey_Pages']
 
-        # Now, all the survey names are in the 'all_survey_names' list and corresponding pages in 'all_survey_pages' list
-
-        # Now we want to generate answers for all questions in each survey in turn
+        # Now we want to generate a list of dicts that will hold the learner's responses to survey questions
+        # whether for pre-lesson test or post-lesson test. That list is the survey_responses.
         survey_responses = []
 
         def getSurveyData(pages):
@@ -79,10 +79,18 @@ class surveyDataGenerator(object):
                 survey_objects.append(survey_object)
             return survey_objects
 
-
+        # Generate a survey response object
         for pages in all_surveys[1:3]:
             data = getSurveyData(pages)
             survey_responses.append(data)
+
+        # print survey_responses
+        """
+        The final value of 'survey_response' is a list containing two survey data dicts: one for the pre-lesson survey
+        and one for the post-lesson survey. Construction of the responses should copy the list and iterate over the
+        two survey responses and adding simulated responses.
+        """
+
 
     # Raghav's stat functions from the data_simulation script to shape the simulated data distributions
         def weighted_probs(outcomes, probabilities, size):
@@ -145,53 +153,38 @@ class surveyDataGenerator(object):
                 return max(actual_matrix)
             else:
                 return 0
-        
+
+
         def constructResponses():
-            pre_test_responses, post_test_responses = [],[]
+            pre_test_responses, post_test_responses = [], []
+            learner_responses = []
 
             # iterate over each learner
             for i in range(len(self.learners.columns)):
-                pre_test_response = {"SurveyName": "Pre-Lesson Test",
-                            "LearnerID": self.learners[i]['email_id'],
-                            "SurveyObjects": []}
-                post_test_response = {"SurveyName": "Post-Lesson Test",
-                            "LearnerID": self.learners[i]['email_id'],
-                            "SurveyObjects": []}
-            # fill in 
-                for survey_question in survey_responses[0]["SurveyObjects"]:
-                    question = survey_question['Question']
-                    answer = fillInAnswer(survey_question['Answer'], survey_question['Scoring'], self.learners[i]['handgun_prof_recoded'])
-                    scoring = survey_question['Scoring']
-                    points = calculateScore(answer, scoring)
-                    survey_object = {"Question": question,
-                                    "Answer": answer,
-                                    "Scoring": scoring,
-                                    "Points": points}
-                    pre_test_response['SurveyObjects'] = survey_object
-                    post_test_response['SurveyObjects'] = survey_object
+                this_response = copy.deepcopy(survey_responses)
+                for s in this_response:
+                    s['LearnerID'] = self.learners[i]['email_id']
 
-                    pre_test_responses.append(pre_test_response)
-                    post_test_responses.append(post_test_response)
+                    for so in s['SurveyObjects']:
+                        so['Answer'] = fillInAnswer(so['Answer'], so['Scoring'], self.learners[i]['qualification_performance'])
+                        so['Points'] = calculateScore(so['Answer'], so['Scoring'])
 
-                with open("../data/pre_test_responses/" + pre_test_response["LearnerID"] + ".json", "w") as data_out:
-                    json.dump(pre_test_response, data_out)
+                learner_responses.append(this_response)
+            print "the learner responses list is ", len(learner_responses)
 
-                with open("../data/post_test_responses/" + post_test_response["LearnerID"] + ".json", "w") as data_out:
-                    json.dump(post_test_response, data_out)
+            for lr in learner_responses:
+                with open("../data/pre_test_responses/" + lr[0]["LearnerID"] + ".json", "w") as data_out:
+                    json.dump(learner_responses[0], data_out)
 
-            # return pre_test_responses, post_test_responses
-                
+                with open("../data/post_test_responses/" + lr[1]["LearnerID"] + ".json", "w") as data_out:
+                    json.dump(learner_responses[1], data_out)
+
         constructResponses()
-
-
-
-
-
 
     """
     In the wild, we would expect each of the above surveys (not pages) to be stored into the LRS as the learner completes
     them. For example, upon completing the pre-lesson attitude survey, GIFT should write an xAPI statement that
-    {Agent: learner x, Verb: completed, Object: pre-lesson attidude survey for course abc with {Extension: responses to
+    {Agent: learner x, Verb: completed, Object: pre-lesson attitude survey for course abc with {Extension: responses to
     questions}, Context: JSON of survey questions and scoring rubric}
 
     For purposes of generating data in this case, we should just generate a single JSON object with questions and answers
@@ -199,13 +192,7 @@ class surveyDataGenerator(object):
     'marksmanship_data_simulation-123405T_21April2016-learnerID.domain.json'
     """
 
-
-    
-
-
-
-
 survey = "../data/Domain/Marksmanship Course/ModifiedMarksmanshipCourse.course.surveys.export"
-learners = "../data/Domain/Marksmanship Course/class.json"
+learners = "../data/class_data/class.json"
 
 data = surveyDataGenerator(learners, survey)

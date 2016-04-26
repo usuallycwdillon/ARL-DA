@@ -59,10 +59,18 @@ class ArmyDataSim(object):
 		self.df['shrange_hours'] = self.rand_range(0,1080, self.n)
 		self.df['is_markstrained'] = np.random.binomial(n = 1, p = 0.50, size = self.n)
 		self.df['last_training'] = self.rand_range(0,6, self.n)
-		self.df['qualification_performance'] = ""
+		self.df['qualification_performance'] = ["Marksman" if i==1 else "Novice" for i in self.df['is_markstrained']]
+		self.df.loc[((self.df['qualification_performance'] == "Novice") &
+					 (self.df['handgun_prof'] < 6)), 'qualification_performance'] = "Sharpshooter"
+		self.df.loc[((self.df['qualification_performance'] == "Marksman") & (self.df['shrange_hours'] < 300) &
+					 (np.random.rand() > .66)),'qualification_performance'] = "Sharpshooter"
+		self.df.loc[((self.df['qualification_performance']=="Marksman") & (self.df['shrange_hours'] > 300) &
+					 (np.random.rand() < .33)), 'qualification_performance'] = "Sharpshooter"
+		self.df.loc[((self.df['qualification_performance']=="Marksman") & (self.df['shrange_hours'] > 600) &
+					 (np.random.rand() > .50)), 'qualification_performance'] = "Expert"
 		self.df['hours_fps_week'] = self.rand_range(0,120, self.n)
 		self.df['email_id'] = ["learner" + str(i) + "@example.com" for i in self.df.index]
-
+		# if self.df.loc[(self.df['qualification_performance']=="Novice") & (self.df['handgun_prof'] < 6)]: self.df['qualification_performance']
 
 	""" Recode factors to categorial variables """
 	def recode(self):
@@ -71,6 +79,7 @@ class ArmyDataSim(object):
 		self.df['education_level'] = ["High School" if i==1 else "GED" if i==2 else "Some college" if i==3 else "Associate's Degree" if i==4 else "Bachelor's Degree" if i==5 else "Master's Degree" if i==6 else "PHD" for i in self.df['education_level']]
 		self.df['handgun_prof_recoded'] = [0 if i <= 6 else 1 if i > 6 and i <= 15 else 2 for i in self.df['handgun_prof']]
 		self.df['months_deployed'] = self.rand_range(0,36, self.n)
+
 
 	# Helper function to create weighted rvs
 	def weighted_probs(self, outcomes, probabilities, size):
@@ -87,7 +96,6 @@ class ArmyDataSim(object):
 	#Return random values between low and high
 	def rand_range(self, lo, high, n):
 		return np.random.randint(lo,high,n).tolist()
-
 
 	""" Probability Density Function Estimation and Visualization"""
 	# Alternatives (for future): Kolmogorov-smirnov, KDE, Mean integrated squared error, SDE
