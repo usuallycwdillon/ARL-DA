@@ -9,7 +9,7 @@ import json
 from time import gmtime, strftime
 
 
-class surveyDataGenerator(object):
+class SurveyDataGenerator(object):
     """
     The surveyDataGenerator Class takes parameters for GIFT course survey JSON file and generates data to simulate
     students taking the survey. Though, in our test case survey, the pre- and post-course surveys are only written
@@ -24,7 +24,7 @@ class surveyDataGenerator(object):
 
         learners is a list of learners so that the survey is keyed to learners
         """
-        super(surveyDataGenerator, self).__init__()
+        super(SurveyDataGenerator, self).__init__()
 
         #Read all of the learner profiles from the class
         def readClassProfiles(json_file):
@@ -215,6 +215,9 @@ class surveyDataGenerator(object):
                 with open("../data/post_test_responses/" + lr[1]["LearnerID"] + ".json", "w") as data_out:
                     json.dump(lr[1], data_out)
 
+
+
+
         constructResponses()
 
     """
@@ -231,4 +234,4 @@ class surveyDataGenerator(object):
 survey = "../data/Domain/Marksmanship Course/ModifiedMarksmanshipCourse.course.surveys.export"
 learners = "../data/class_data/class.json"
 
-data = surveyDataGenerator(learners, survey)
+data = SurveyDataGenerator(learners, survey)

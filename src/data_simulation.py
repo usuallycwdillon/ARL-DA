@@ -61,16 +61,15 @@ class ArmyDataSim(object):
 		self.df['last_training'] = self.rand_range(0,6, self.n)
 		self.df['qualification_performance'] = ["Marksman" if i==1 else "Novice" for i in self.df['is_markstrained']]
 		self.df.loc[((self.df['qualification_performance'] == "Novice") &
-					 (self.df['handgun_prof'] < 6)), 'qualification_performance'] = "Sharpshooter"
+					 (self.df['handgun_prof'] < 6)), 'qualification_performance'] = "Unexperienced"
 		self.df.loc[((self.df['qualification_performance'] == "Marksman") & (self.df['shrange_hours'] < 300) &
-					 (np.random.rand() > .66)),'qualification_performance'] = "Sharpshooter"
+					 (np.random.rand() > .50)),'qualification_performance'] = "Sharpshooter"
 		self.df.loc[((self.df['qualification_performance']=="Marksman") & (self.df['shrange_hours'] > 300) &
-					 (np.random.rand() < .33)), 'qualification_performance'] = "Sharpshooter"
+					 (np.random.rand() < .50)), 'qualification_performance'] = "Sharpshooter"
 		self.df.loc[((self.df['qualification_performance']=="Marksman") & (self.df['shrange_hours'] > 600) &
 					 (np.random.rand() > .50)), 'qualification_performance'] = "Expert"
 		self.df['hours_fps_week'] = self.rand_range(0,120, self.n)
 		self.df['email_id'] = ["learner" + str(i) + "@example.com" for i in self.df.index]
-		# if self.df.loc[(self.df['qualification_performance']=="Novice") & (self.df['handgun_prof'] < 6)]: self.df['qualification_performance']
 
 	""" Recode factors to categorial variables """
 	def recode(self):
@@ -162,7 +161,7 @@ class ArmyDataSim(object):
 	
 
 
-test_data = ArmyDataSim(40)
+test_data = ArmyDataSim(10000)
 test_data.init()
 test_data.recode()
 test_data.class_to_json("class")
