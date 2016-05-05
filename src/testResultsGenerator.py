@@ -107,50 +107,50 @@ class SurveyDataGenerator(object):
             if rating == "Unexperienced":
                 temp = rand_prob(1)[0]
                 if post !=1:
-                    if temp < 0.75:
+                    if temp < 0.5:
                         return 0
                     else:
                         return 1
                 else:
-                    if temp < 0.375:
+                    if temp < 0.3:
                         return 0
                     else:
                         return 1
             elif rating == "Novice":
                 if post != 1:
                     outcomes = [0, 1]
-                    probs = [0.45, 0.55]
+                    probs = [0.4, 0.6]
                     return weighted_probs(outcomes, probs, 1)
                 else:
                     outcomes = [0, 1]
-                    probs = [0.4, 0.6]
+                    probs = [0.25, 0.75]
                     return weighted_probs(outcomes, probs, 1)
             elif rating == "Marksman":
                 if post != 1:
                     outcomes = [0, 1]
-                    probs = [0.35, 0.65]
-                    return weighted_probs(outcomes, probs, 1)
-                else:
-                    outcomes = [0, 1]
-                    probs = [0.3, 0.7]
-                    return weighted_probs(outcomes, probs, 1)
-            elif rating == "Sharpshooter":
-                if post != 1:
-                    outcomes = [0, 1]
-                    probs = [0.25, 0.75]
-                    return weighted_probs(outcomes, probs, 1)
-                else:
-                    outcomes = [0, 1]
                     probs = [0.2, 0.8]
                     return weighted_probs(outcomes, probs, 1)
-            else:
+                else:
+                    outcomes = [0, 1]
+                    probs = [0.1, 0.9]
+                    return weighted_probs(outcomes, probs, 1)
+            elif rating == "Sharpshooter":
                 if post != 1:
                     outcomes = [0, 1]
                     probs = [0.15, 0.85]
                     return weighted_probs(outcomes, probs, 1)
                 else:
                     outcomes = [0, 1]
-                    probs = [0.1, 0.9]
+                    probs = [0.08, 0.92]
+                    return weighted_probs(outcomes, probs, 1)
+            else:
+                if post != 1:
+                    outcomes = [0, 1]
+                    probs = [0.05, 0.95]
+                    return weighted_probs(outcomes, probs, 1)
+                else:
+                    outcomes = [0, 1]
+                    probs = [0.04, 0.96]
                     return weighted_probs(outcomes, probs, 1)
 
         def fillInAnswer(answer_matrix, actual_matrix, marksman_background, survey_index):

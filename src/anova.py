@@ -7,6 +7,8 @@ import scipy.stats as st
 import scipy as sc
 import json
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
 class VarianceAnalyzer(object):
     """
@@ -58,14 +60,93 @@ class VarianceAnalyzer(object):
         self.scores = pd.merge(self.pre_data, self.post_data, on='LearnerID', suffixes=['_pre', '_post'])
 
         self.df = pd.merge(self.scores, self.profiles, left_on='LearnerID', right_on='email_id', how='outer')
+        self.df['pos_diffs'] = self.df.apply(lambda row: max(getDiff(row), 0), axis=1)
         self.df['diffs'] = self.df.apply(lambda row: getDiff(row), axis=1)
+        self.df['adj_diffs'] = self.df.apply(lambda row: row['diffs'] + 100, axis=1)
 
-        anova = pairwise_tukeyhsd(endog=self.df['diffs'], groups=self.df['qualification_performance'], alpha=0.05)
+        fps = []
+        def gamer(s):
+            if s == 0:
+                fps.append('no')
+            else:
+                fps.append('yes')
 
+        self.df.apply(lambda row: gamer(row['is_gamer']), axis=1)
+        self.df['fps'] = fps
+
+        def accumulate(row):
+            return "_".join([row['qualification_performance'], row['education_level'], row['fps']])
+
+        self.df['all'] = self.df.apply(lambda row: accumulate(row), axis=1)
+
+        ## Huom! It may or may not be necessary to elementally convert the numpy.ndarrays into plain python lists and
+        #  elementally convert numpy complex data types into plain python data types, e.g., numpy.int64 into int.
+        #
+        #  Definitely! It is necessary to sample the population data to get samples where the size of each sub-category
+        #  is the same length. For example, if there are 5 marksmanship cateogories then we need 30n x 5categories = 150
+        #  elements in the pyvttbl dataframe. If we want to use that same dataframe for analysis of education level,
+        #  then the sample needs to be 30n x 7levels = 210, but if we want to avoid indirect correlation then the sample
+        #  size needs to be 30n x 5cats x 7levels = 1050. ...and 2100 if we want to also look at first person shooter
+        #  experience. While it may be ~theoretically~ possible to attempt max(60, 150, 210), since we don't know that
+        #  the 210n will also be evenly divided 105 wFPS/105 without, for example.
+
+        categories = set()
+        for i in self.df['all']:
+            if i not in categories:
+                categories.add(i)
+
+        qpj = df.qualification_performance.describe().to_json()
+        edj = df.education_level.describe().to_json()
+        ooj = df.describe().to_json()
+
+        qgb = df.groupby('qualification_performance')
+        fgb = df.groupby('fps')
+        egb = df.groupby('education_level')
+
+        qpg = qgb.describe().to_json()
+        fpg = fgb.describe().to_json()
+        edg = egb.describe().to_json()
+        oog = "Not Applicable"
+
+        qpd = Summary("Marksmanship", qpj, qpg)
+        fpd = Summary("FPS Experience", fpj, fpg)
+        edd = Summary("Education", edj, edg)
+        ood = Summary("Overall", ooj, oog)
+
+        for d in descriptions:
+            with open("data/results/" + d[0] + ".json", "w") as data_out:
+                json.dump(d, data_out)
+
+
+
+
+        # Pivot Table methods for mixed 2-way ANOVA
+        from pyvttbl import DataFrame
+        pyv_df = DataFrame()
+        pyv_df['scores'] = self.df['pos_diffs']
+        pyv_df['qp'] = self.df['qualification_performance']
+        pyv_df['edu'] = self.df['education_level']
+        pyv_df['fps'] = self.df['fps']
+        pyv_df['all'] = self.df['all']
+
+        # Pairwise ANOVA of score difference from pre-lesson to post-lesson knowledge surveys
+        anova = pairwise_tukeyhsd(endog=self.df['diffs'], groups=self.df['qualification_performance'], alpha=0.01)
         print anova.summary()
+
+        # Summary descriptive statistics of pre- post- and differences of the whole group and by subgroups
+        df_summary = self.df.describe()
+        qp_groups = self.df.groupby(['qualification_performance'])
+        qp_summary = qp_groups.describe()
+
+        formula = 'self.df["diffs"] ~ self.df["qualification_performance"] + self.df["education_level"] + self.df["is_gamer"]'
+        ols_lm = ols(formula, self.df).fit()
+
+        f = open("../data/anovaResults.txt", "w")
+        f.write(anova.__str__())
+
 
 pre_scores  = "../data/pre_test_responses"
 post_scores = "../data/post_test_responses"
 learners    = "../data/class_data/class.json"
 
-analysis = VarianceAnalyzer(learners, pre_scores, post_scores)
+VarianceAnalyzer(learners, pre_scores, post_scores)
