@@ -59,11 +59,7 @@ class VarianceAnalyzer(object):
         self.pre_data = pd.DataFrame(pre_json)
         self.post_data = pd.DataFrame(post_json)
         self.scores = pd.merge(self.pre_data, self.post_data, on='LearnerID', suffixes=['_pre', '_post'])
-        max_sample_sizes = df['subs'].value_counts()
-        categories = set()
-        for i in df['subs']:
-            if i not in categories:
-                categories.add(i)
+
 
         self.df = pd.merge(self.scores, self.profiles, left_on='LearnerID', right_on='email_id', how='outer')
         self.df['pos_diffs'] = self.df.apply(lambda row: max(getDiff(row), 0), axis=1)
@@ -80,27 +76,101 @@ class VarianceAnalyzer(object):
         self.df.apply(lambda row: gamer(row['is_gamer']), axis=1)
         self.df['fps'] = fps
 
+        ## This side is all data munging to build the database
+        ###############################################################################
+        ## This side is all about adjusting the lengths of columns
+
         def accumulate(row):
             return "_".join([row['qualification_performance'], row['education_level'], row['fps']])
 
-        self.df['all'] = self.df.apply(lambda row: accumulate(row), axis=1)
+        self.df['subs'] = self.df.apply(lambda row: accumulate(row), axis=1)
 
-        # Pivot Table methods for mixed 2-way ANOVA
+        combo_sizes = self.df['subs'].value_counts()
+        combo_sample = min(combo_sizes)
+        # print(combo_sample)
 
-        pyv_df = DataFrame()
-        qp_df = DataFrame()
-        edu_df = DataFrame()
-        fps_df = DataFrame()
+        qp_sizes = self.df['qualification_performance'].value_counts()
+        qp_sample = min(qp_sizes)
+        # print(qp_sample)
 
-        pyv_df['scores'] = df['pos_diffs']
-        pyv_df['qp'] = df['qualification_performance']
-        pyv_df['edu'] = df['education_level']
-        pyv_df['fps'] = df['fps']
-        pyv_df['subs'] = df['subs']
+        edu_sizes = self.df['education_level'].value_counts()
+        edu_sample = min(edu_sizes)
+        # print(edu_sample)
 
-        from random import choice
-        fps_df['data'], fps_df['condition'] = choice(fps_sample, )
+        fps_sizes = self.df['fps'].value_counts()
+        fps_sample = min(fps_sizes)
+        # print(fps_sample)
 
+
+        short_qp_dfs = []
+        for level in list(set(self.df['qualification_performance'])):
+            simple = self.df[self.df['qualification_performance'] == level]
+            short = simple.sample(qp_sample)
+            short_qp_dfs.append(short)
+        sample_qps = pd.concat(short_qp_dfs)
+
+        short_ed_dfs = []
+        for level in list(set(self.df['education_level'])):
+            simple = self.df[self.df['education_level'] == level]
+            short = simple.sample(edu_sample)
+            short_ed_dfs.append(short)
+        sample_eds = pd.concat(short_ed_dfs)
+
+        short_fp_dfs = []
+        for level in list(set(self.df['fps'])):
+            simple = self.df[self.df['fps'] == level]
+            short = simple.sample(fps_sample)
+            short_fp_dfs.append(short)
+        sample_fps = pd.concat(short_fp_dfs)
+
+        # Pivot Table methods for ANOVA
+        from pyvttbl import DataFrame
+
+        def str_list(some_array):
+            the_list = some_array.tolist()
+            the_elements = [str(x) for x in the_list]
+            return the_elements
+
+        def int_list(some_array):
+            the_list = some_array.tolist()
+            the_elements = [int(x) for x in the_list]
+            return the_elements
+
+        def get_w(anova):
+            top = anova['ssbn'] - anova['dfbn'] * anova['mswn']
+            bottom = anova['ssbn'] + anova['sswn'] + anova['mswn']
+            return top / bottom
+
+        def do_anovas(some_df, variable):
+            '''
+            This method takes a dataframe,  returns the pyvttbl
+            anova object for that element
+            '''
+            pyv_df = DataFrame()
+
+            if variable == 'qp':
+                pyv_df['qual'] = str_list(some_df['qualification_performance'])
+                pyv_df['vals'] = int_list(some_df['adj_diffs'])
+
+            elif variable == 'ed':
+                pyv_df['qual'] = str_list(some_df['education_level'])
+                pyv_df['vals'] = int_list(some_df['adj_diffs'])
+
+            elif variable == 'fp':
+                pyv_df['qual'] = str_list(some_df['fps'])
+                pyv_df['vals'] = int_list(some_df['adj_diffs'])
+
+            else:
+                return None
+
+            anova = pyv_df.anova1way('vals', 'qual')
+            anova['omega-sq'] = get_w(anova)
+
+            return anova
+
+        qpw_anova = do_anovas(sample_qps, 'qp')
+        edw_anova = do_anovas(sample_eds, 'ed')
+        fpw_anova = do_anovas(sample_fps, 'fp')
 
 
         ## Huom! It may or may not be necessary to elementally convert the numpy.ndarrays into plain python lists and
@@ -114,10 +184,10 @@ class VarianceAnalyzer(object):
         #  experience. While it may be ~theoretically~ possible to attempt max(60, 150, 210), since we don't know that
         #  the 210n will also be evenly divided 105 wFPS/105 without, for example.
 
-        categories = set()
-        for i in self.df['all']:
-            if i not in categories:
-                categories.add(i)
+        # categories = set()
+        # for i in self.df['all']:
+        #     if i not in categories:
+        #         categories.add(i)
 
         def tuple_handler(data_in):
             data_out = {}
@@ -129,54 +199,31 @@ class VarianceAnalyzer(object):
                 data_out[k] = inner
             return data_out
 
-        qpj = df.qualification_performance.describe().to_dict()
-        fpj = df.fps.describe().to_dict()
-        edj = df.education_level.describe().to_dict()
-        ooj = df.describe().to_dict()
+        qpj = self.df.qualification_performance.describe().to_dict()
+        fpj = self.df.fps.describe().to_dict()
+        edj = self.df.education_level.describe().to_dict()
+        ooj = self.df.describe().to_dict()
 
-        qgb = (df.groupby('qualification_performance')).describe()
-        fgb = (df.groupby('fps')).describe()
-        egb = (df.groupby('education_level')).describe()
+        qgb = (self.df.groupby('qualification_performance')).describe()
+        fgb = (self.df.groupby('fps')).describe()
+        egb = (self.df.groupby('education_level')).describe()
         oob = "Not Applicable"
 
-        qpg = join_tuple_keys(qgb)
-        fpg = join_tuple_keys(fgb)
-        edg = join_tuple_keys(egb)
+        qpg = tuple_handler(qgb)
+        fpg = tuple_handler(fgb)
+        edg = tuple_handler(egb)
 
-        qpd = {"Category":"Marksmanship", "Summary":qpj, "Data":qpg}
-        fpd = {"Category":"FPS Experience", "Summary":fpj, "Data":fpg}
-        edd = {"Category":"Education", "Summary":edj, "Data":edg}
-        ood = {"Category":"Overall", "Summary":ooj, "Data":oob}
+
+        qpd = {"Category": "Marksmanship", "Summary": qpj, "Data": qpg, "ANOVA": qpw_anova}
+        fpd = {"Category": "FPS Experience", "Summary": fpj, "Data": fpg, "ANOVA": fpw_anova}
+        edd = {"Category": "Education", "Summary": edj, "Data": edg, "ANOVA": edw_anova}
+        ood = {"Category": "Overall", "Summary": ooj, "Data": oob, "ANOVA": 'Not Applicable'}
 
         descriptions = [qpd, fpd, edd, ood]
 
-        # for d in descriptions:
-        #     with open("data/results/" + d['Category'] + ".json", "w") as data_out:
-        #         json.dump(d, data_out)
-
-        # Pivot Table methods for mixed 2-way ANOVA
-        from pyvttbl import DataFrame
-        pyv_df = DataFrame()
-        pyv_df['scores'] = self.df['pos_diffs']
-        pyv_df['qp'] = self.df['qualification_performance']
-        pyv_df['edu'] = self.df['education_level']
-        pyv_df['fps'] = self.df['fps']
-        pyv_df['all'] = self.df['all']
-
-        # # Pairwise ANOVA of score difference from pre-lesson to post-lesson knowledge surveys
-        # anova = pairwise_tukeyhsd(endog=self.df['diffs'], groups=self.df['qualification_performance'], alpha=0.01)
-        # print anova.summary()
-        #
-        # # Summary descriptive statistics of pre- post- and differences of the whole group and by subgroups
-        # df_summary = self.df.describe()
-        # qp_groups = self.df.groupby(['qualification_performance'])
-        # qp_summary = qp_groups.describe()
-        #
-        # formula = 'self.df["diffs"] ~ self.df["qualification_performance"] + self.df["education_level"] + self.df["is_gamer"]'
-        # ols_lm = ols(formula, self.df).fit()
-        #
-        # f = open("../data/anovaResults.txt", "w")
-        # f.write(anova.__str__())
+        for d in descriptions:
+            with open("../data/results/" + d['Category'] + ".json", "w") as data_out:
+                json.dump(d, data_out)
 
 
 pre_scores  = "../data/pre_test_responses"
