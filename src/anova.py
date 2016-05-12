@@ -3,13 +3,15 @@
 import numpy as np
 import os
 import pandas as pd
-import scipy.stats as st
-import scipy as sc
 import json
+from pyvttbl import PyvtTbl
 from pyvttbl import DataFrame
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
+from pyvttbl.plotting import *
+from pyvttbl.stats import *
+from pyvttbl.misc.support import *
+from collections import namedtuple
+from operator import attrgetter
+
 
 class VarianceAnalyzer(object):
     """
@@ -68,10 +70,8 @@ class VarianceAnalyzer(object):
 
         fps = []
         def gamer(s):
-            if s == 0:
-                fps.append('no')
-            else:
-                fps.append('yes')
+            if s == 0: fps.append('no')
+            else: fps.append('yes')
 
         self.df.apply(lambda row: gamer(row['is_gamer']), axis=1)
         self.df['fps'] = fps
@@ -123,9 +123,8 @@ class VarianceAnalyzer(object):
             short_fp_dfs.append(short)
         sample_fps = pd.concat(short_fp_dfs)
 
-        # Pivot Table methods for ANOVA
-        from pyvttbl import DataFrame
 
+        # Pivot Table methods for ANOVA
         def str_list(some_array):
             the_list = some_array.tolist()
             the_elements = [str(x) for x in the_list]
@@ -172,6 +171,18 @@ class VarianceAnalyzer(object):
         edw_anova = do_anovas(sample_eds, 'ed')
         fpw_anova = do_anovas(sample_fps, 'fp')
 
+        # Rank order variables
+        Rank = namedtuple('Rank', 'var omega')
+
+        qpt = Rank(var='Marksmanship', omega=qpw_anova['omega-sq'])
+        fpt = Rank(var='FPS_experience', omega=fpw_anova['omega-sq'])
+        edt = Rank(var='Education', omega=edw_anova['omega-sq'])
+
+
+
+        ranks = [qpt, fpt, edt]
+        ranks = sorted(ranks, key=lambda x: x.omega)
+
 
         ## Huom! It may or may not be necessary to elementally convert the numpy.ndarrays into plain python lists and
         #  elementally convert numpy complex data types into plain python data types, e.g., numpy.int64 into int.
@@ -199,6 +210,14 @@ class VarianceAnalyzer(object):
                 data_out[k] = inner
             return data_out
 
+        def tuple_handler2(data_in):
+            data_out = {}
+            for k, v in data_in.iteritems():
+                nk = "_".join(k)
+                data_out[nk] = v
+            return data_out
+
+
         qpj = self.df.qualification_performance.describe().to_dict()
         fpj = self.df.fps.describe().to_dict()
         edj = self.df.education_level.describe().to_dict()
@@ -213,18 +232,42 @@ class VarianceAnalyzer(object):
         fpg = tuple_handler(fgb)
         edg = tuple_handler(egb)
 
+        qptt = tuple_handler2(qpw_anova.multtest)
+        fptt = tuple_handler2(fpw_anova.multtest)
+        edtt = tuple_handler2(edw_anova.multtest)
 
-        qpd = {"Category": "Marksmanship", "Summary": qpj, "Data": qpg, "ANOVA": qpw_anova}
-        fpd = {"Category": "FPS Experience", "Summary": fpj, "Data": fpg, "ANOVA": fpw_anova}
-        edd = {"Category": "Education", "Summary": edj, "Data": edg, "ANOVA": edw_anova}
-        ood = {"Category": "Overall", "Summary": ooj, "Data": oob, "ANOVA": 'Not Applicable'}
+
+        qpd = {"Category": "Marksmanship", "Summary": qpj, "Data": qpg, "ANOVA": qpw_anova, "Ttest": qptt}
+        fpd = {"Category": "FPS Experience", "Summary": fpj, "Data": fpg, "ANOVA": fpw_anova, "Ttest": fptt}
+        edd = {"Category": "Education", "Summary": edj, "Data": edg, "ANOVA": edw_anova, "Ttest": edtt}
+        ood = {"Category": "Overall", "Summary": ooj, "Data": oob, "ANOVA": 'Not Applicable', "Ttest":'Not Applicable'}
 
         descriptions = [qpd, fpd, edd, ood]
 
-        for d in descriptions:
-            with open("../data/results/" + d['Category'] + ".json", "w") as data_out:
-                json.dump(d, data_out)
+        ## Compact Data
+        def compactor(big_dict):
+            cat = big_dict['Category']
+            means = {}
+            for k, v in big_dict['Data']['adj_diffs'].iteritems():
+                if k.endswith('_mean'):
+                    means[k]=v
+            f = big_dict['ANOVA']['f']
+            p = big_dict['ANOVA']['p']
+            w = big_dict['ANOVA']['omega-sq']
+            t = {}
+            for k, v in big_dict['Ttest'].iteritems():
+                nv = {}
+                nv['q'] = v['q']
+                nv['sig'] = v['sig']
+                t[k] = nv
+            return {'Variable':cat, 'Data':means, 'ANOVA F-stat':f, 'ANOVA p-value':p, 'ANOVA w2':w, 'Ttest':t}
 
+        for d in descriptions[0:-1]:
+            cd = compactor(d)
+            with open("../data/results/" + d['Category'] + "_compact.json", "w") as data_out:
+                json.dump(cd, data_out)
+
+        # json.dump(ranks, '../data/var-rankings.json', sort_keys=True)
 
 pre_scores  = "../data/pre_test_responses"
 post_scores = "../data/post_test_responses"
