@@ -17,20 +17,22 @@ __copyright__ = "Copyright 2016, ICF International inc and U.S. Army Research La
 __credits__ = ["Clarence Dillon", "Raghav Joshi", "Michael Smith", "Paul Cummings", "Zach Cummings", "Sue Dass",
                "Robert Brusso"]
 __license__ = "Mozilla (MPL) Public License"
-__version__ = "2.0"
+__version__ = "0.9"
 __maintainer__ = "Clarence Dillon"
 __email__ = "clarence.dillon@icfi.com"
 __status__ = "Beta"
 
 import settings
 import future_builtins
-
-
-
+import data_io 
 
 ## Get the minimum number of learners to generate in this simulation. If a course offering is too small, the simulation
-#  will generate more to round out the cadre.
-MIN_NUM_STUS = 1000 #this should become a user input value through the GUI. The
+#  will generate more to round out the cadre. 
+#  Get the relevent GIFT survey to parse
+num_stu = settings.MIN_STUS
+
+
+surveys = settings.surveys 
 
 ## Generate learners (learner profiles) to be saved/retreived from the LRS
 
@@ -47,4 +49,3 @@ MIN_NUM_STUS = 1000 #this should become a user input value through the GUI. The
 
 
 ##
-

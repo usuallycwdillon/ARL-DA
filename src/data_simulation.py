@@ -165,4 +165,3 @@ test_data.init()
 test_data.recode()
 test_data.class_to_json("class")
 test_data.class_to_csv("class")
-
