@@ -6,6 +6,7 @@ import random
 import copy
 import pandas as pd
 import json
+import csv
 from time import gmtime, strftime
 
 
@@ -41,6 +42,7 @@ class SurveyDataGenerator(object):
         # Extract the surveys and identify them
         self.survey = open(survey).read()
         survey_json = json.loads(self.survey)
+
         context = survey_json['Survey_Context_Name']
         all_surveys = survey_json['Survey_Context_Surveys'][0]['Survey_Context_Survey_Survey']['Survey_Pages']
 
@@ -158,7 +160,7 @@ class SurveyDataGenerator(object):
             #print prob_correctness
             if prob_correctness == 0:
                 # randomly select the index where it is not the right answer
-                ans_pos = [i for i,x in enumerate(actual_matrix) if x != 0]
+                ans_pos = [i for i, x in enumerate(actual_matrix) if x != 0]
                 # return temp[0]
                 if ans_pos == 3:
                     random_choice = random.choice([0,1,2])
@@ -192,7 +194,6 @@ class SurveyDataGenerator(object):
 
         def constructResponses():
             learner_responses = []
-
             # iterate over each learner
             for i in range(len(self.learners.columns)):
                 this_response = copy.deepcopy(survey_responses)
@@ -206,6 +207,7 @@ class SurveyDataGenerator(object):
                     s['OverallScore'] = sum(overall_points)
 
                 learner_responses.append(this_response)
+
             print "the learner responses list is ", len(learner_responses)
 
             for lr in learner_responses:
@@ -216,6 +218,17 @@ class SurveyDataGenerator(object):
                     json.dump(lr[1], data_out)
 
 
+            data_out = open("../data/pre_test_responses/learner_responses.csv", "wb")
+            w = csv.DictWriter(data_out, learner_responses[0][0].keys())
+            w.writeheader()
+            for lr in learner_responses:
+                w.writerow(lr[0])
+
+            data_out = open("../data/post_test_responses/learner_responses.csv", "wb")
+            w = csv.DictWriter(data_out, learner_responses[0][1].keys())
+            w.writeheader()
+            for lr in learner_responses:
+                w.writerow(lr[1])
 
 
         constructResponses()

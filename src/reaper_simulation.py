@@ -32,7 +32,7 @@ class ReaperSimulation(object):
 		self.df['student_id'] = repl_ids
 
 		# Create date and time
-		self.df['date'] = "15-May-16"
+		self.df['date'] = "15-JUN-16"
 		self.df['time'] = self.df['time'].apply(lambda v: np.random.randint(3,12))
 
 		# Create FirePosition
