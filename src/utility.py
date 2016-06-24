@@ -147,7 +147,7 @@ def constructResponse(learner_id, rifle_prof, blank_response, dir, post):
 
 
 def agreement(mu):
-    k = [1, 2, 3, 4, 5, 6, 7]  # index values, not answer weights
+    k = [0, 1, 2, 3, 4, 5, 6]  # index values, not answer weights
     p = sps.binom.pmf(range(7), 3, mu, loc=1)
     if sum(p) != 1.00:
         d = 1.00 - sum(p)
