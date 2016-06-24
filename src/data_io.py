@@ -10,14 +10,23 @@ from loremipsum import Generator
 from time import gmtime, strftime
 
 
-def saveJSON(content, location):
+def saveJSON(content, location, name=None):
     data = content
     dir = location + "/"
     for d in data:
-        fn = settings.DATA_DIR + dir + d.learner_id
-        frozen = jsonpickle.encode(d)
-        with open(fn, 'w') as outfile:
-            outfile.write(unicode(frozen))
+        if location == "learners":
+            name = d.learner_id
+            fn = settings.DATA_DIR + dir + name
+            frozen = jsonpickle.encode(d)
+            with open(fn, 'w') as outfile:
+                outfile.write(unicode(frozen))
+                fn.close()
+        if location == "results":
+            print "Saving results..."
+            name = d['explanandum'] + ".json"
+            fn = settings.DATA_DIR + dir + name
+            with open(fn, 'w') as f:
+                json.dump(d, f)
 
 
 def fetchSurvey(dir, file):
@@ -110,7 +119,7 @@ def getBlankFiller(page_elements):
     ans_len = choice([2, 3, 4, 5, 6])
     # random_text = settings.tg.generate_sentences(ans_len)
     random_text = ' '.join(get_sentences(ans_len))
-    print random_text
+    # print random_text
     survey_object = {"Question": each_element['Question']['Question_Text'],
                      "Type": each_element['Question']['Type'],
                      "Answer": random_text

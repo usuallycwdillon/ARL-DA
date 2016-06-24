@@ -23,12 +23,16 @@ __email__ = "clarence.dillon@icfi.com"
 __status__ = "Beta"
 
 from random import randrange
+import json
 from copy import copy
-
+import pandas as pd
+import scipy.stats as sps
 import settings
 import agents
 import data_io
+import utility
 
+global learners
 
 ## Initialize the simulation using settings.py parameters
 settings.init()
@@ -51,13 +55,13 @@ settings.survey_models = data_io.parseSurvey(settings.surveys)
 
 
 ## Generate learners (learner profiles) to be saved/retreived from the LRS
-settings.learners = [agents.Learner(x) for x in xrange(settings.MIN_STUS)]
-data_io.saveJSON(settings.learners, "learners")
+learners = [agents.Learner(x) for x in xrange(settings.MIN_STUS)]
+if settings.verbosity == True: data_io.saveJSON(settings.learners, "learners")
 
 ## In batches of COURSE_SIZE at a time, learners will start the marksmanship training course in one of several offerings.
 #  So, we have to first create course section offerings
 num_offers = settings.MIN_STUS / settings.COURSE_SIZE
-learner_set = set(copy(settings.learners))
+learner_set = set(copy(learners))
 
 #  Then we assign learners to course sections by creating a new "Course_Offering" object and enrolling them. No need
 #  for randomness because the learners are already randomly heterogeneous.
@@ -80,7 +84,49 @@ for co in settings.course_sections:
         enrolled_learner.takeReactionSurvey()
         enrolled_learner.takeSatisfactionSurvey()
 
+########################################################################################################################
+#
+# Data generation is complete (above). Code below here munges that data then calls analysis chunks
+#
+########################################################################################################################
 
+
+
+l = len(learners)
+idx = xrange(l)
+cols = ['learner_id', 'education_level', 'attitude_min', 'attitude_total', 'reaction_min', 'reaction_total',
+        'satisfaction_min', 'satisfaction_total']
+df = pd.DataFrame(0, index=idx, columns=cols)
+survey_results = [utility.getAttrs(l) for l in learners]
+df = pd.DataFrame(survey_results)
+
+
+labels = ["low", "high"]
+df['attitude_bin'] = utility.binning(df['attitude_total'], df['attitude_min'][0], labels=labels)
+df['reaction_bin'] = utility.binning(df['reaction_total'], df['reaction_min'][0], labels=labels)
+df['satisfaction_bin'] = utility.binning(df['satisfaction_total'], df['satisfaction_min'][0], labels=labels)
+
+ed_ct_at = pd.crosstab(df.education_level, df.attitude_bin).apply(lambda row: row / row.sum(), axis=1)
+ed_ct_re = pd.crosstab(df.education_level, df.reaction_bin).apply(lambda row: row / row.sum(), axis=1)
+ed_ct_sa = pd.crosstab(df.education_level, df.attitude_bin).apply(lambda row: row / row.sum(), axis=1)
+
+at_rf = utility.getRelFreqPlus(df, df.attitude_bin)
+re_rf = utility.getRelFreqPlus(df, df.reaction_bin)
+sa_rf = utility.getRelFreqPlus(df, df.satisfaction_bin)
+
+at_chi = utility.getChis(ed_ct_at, 'education_level')
+re_chi = utility.getChis(ed_ct_re, 'education_level')
+sa_chi = utility.getChis(ed_ct_sa, 'education_level')
+chis = [at_chi, re_chi, sa_chi]
+
+explanans = ['Task Attitude', 'Course Reaction', 'Course Satisfaction']
+
+plottables = []
+for i in range(0,3):
+    po = utility.repackage(explanans[i], chis[i])
+    plottables.append(po)
+
+data_io.saveJSON(plottables, "results")
 
 
 

@@ -32,12 +32,12 @@ def init():
     global sample
 
     debuging = False
-    verbosity = True
+    verbosity = False
     timestamp = None
 
     # initialize configuration settings and globals
     COURSE_SIZE = 400
-    MIN_STUS = 500  # future versions will have this be an input from the webpage
+    MIN_STUS = 400  # future versions will have this be an input from the webpage
     if MIN_STUS % COURSE_SIZE != 0:
         MIN_STUS = MIN_STUS + (COURSE_SIZE - (MIN_STUS % COURSE_SIZE))
 

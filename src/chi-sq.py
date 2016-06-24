@@ -8,7 +8,7 @@ import json
 
 class chiAnalysis(object):
     '''
-    There is nothing in this bloc yet
+    There is nothing in this block, yet.
     '''
 
     def __init__(self, learners, rec_fire):
@@ -279,7 +279,6 @@ class chiAnalysis(object):
         a_df_r = pd.crosstab(self.df.ability, self.df['rank'])
         a_dfs = [a_df_ed, a_df_hp, a_df_ig, a_df_qp, a_df_r]
 
-
         dems = ['Education Level', 'Handgun Profiency', 'Computer Gamer', 'Rifle Experience',
                 'Officer or Enlisted']
 
@@ -290,7 +289,7 @@ class chiAnalysis(object):
 
         # Final outputs:
         # ...for Record Fire (generally) in 6th slide of req't presentation
-        stat_rel_variables = []
+        soft_surveys = []
 
         qual_rating_srv = {'explanans': facs[0]}
 

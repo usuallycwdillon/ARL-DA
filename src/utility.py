@@ -5,10 +5,13 @@ from numpy.random import random_sample, choice
 import scipy.stats as sps
 import numpy as np
 import json
+import pandas as pd
 from math import factorial
 
 import settings
 import data_io
+
+global learners
 
 # Now we want to generate a list of dicts that will hold the learner's responses to survey questions
 # whether for pre-lesson test or post-lesson test. That list is the survey_responses.
@@ -137,29 +140,33 @@ def constructResponse(learner_id, rifle_prof, blank_response, dir, post):
         so['Points'] = calculateScore(so['Answer'], so['Scoring'])
         overall_points.append(so['Points'])
     r['Overall_Score'] = sum(overall_points)
-
-    with open(settings.DATA_DIR + dir + r['learner_id'] + ".json", "w") as data_out:
-        json.dump(r, data_out)
-
+    if settings.verbosity == True:
+        with open(settings.DATA_DIR + dir + r['learner_id'] + ".json", "w") as data_out:
+            json.dump(r, data_out)
     return r
 
 
 def agreement(mu):
-    k = [0, 1, 2, 3, 4, 5, 6]  # index values, not answer weights
-    p = sps.binom.pmf(range(7), 5, mu)
+    k = [1, 2, 3, 4, 5, 6, 7]  # index values, not answer weights
+    p = sps.binom.pmf(range(7), 3, mu, loc=1)
+    if sum(p) != 1.00:
+        d = 1.00 - sum(p)
+        if d > 0:
+            p[6] = d
     val = choice(k, 1, p=p)[0]
     return val
+
 
 def fillBubbles(survey_object, ed, mea):
     o = survey_object
     answer_list = []
-    survey_matrix = {"GED": [0.11, 0.10, 0.11, 0],
-                     "High School": [0.13, 0.12, 0.11, 0],
-                     "Some College": [0.26, 0.24, 0.20, 0],
-                     "Associates Degree": [0.24, 0.24, 0.28, 0],
-                     "Bachelors Degree": [0.32, 0.28, 0.38, 0],
-                     "Masters Degree": [0.52, 0.80, 0.32, 0],
-                     "Doctoral Degree": [0.51, 0.38, 0.36, 0]
+    survey_matrix = {"GED": [0.21, 0.20, 0.21, 0],
+                     "High School": [0.23, 0.22, 0.21, 0],
+                     "Some College": [0.36, 0.34, 0.30, 0],
+                     "Associates Degree": [0.34, 0.34, 0.38, 0],
+                     "Bachelors Degree": [0.42, 0.38, 0.48, 0],
+                     "Masters Degree": [0.62, 0.70, 0.42, 0],
+                     "Doctoral Degree": [0.61, 0.48, 0.46, 0]
                      }
     i = 0
     a = 0
@@ -178,7 +185,7 @@ def fillBubbles(survey_object, ed, mea):
     par = survey_matrix[ed][i]
     lo = min(a, par)
     hi = max(a, par)
-    mu = random.triangular(lo, hi)
+    mu = random.uniform(lo, hi)
     for a in o['Answers']:
         iv = agreement(mu)
         ans = o['Weights'][iv]
@@ -190,15 +197,110 @@ def surveyResponse(learner_id, ed, mea, blank_response, dir):
     r = blank_response
     r['learner_id'] = learner_id
     r['date_time'] = data_io.getTimeStamp('long')
+    r['total_score'] = 0
+    r['min_score'] = 0
     for o in r['Survey_Objects']:
         if o['Type'] == 'MatrixOfChoices':
             o['Answers'] = fillBubbles(o, ed, mea)
             o['Points'] = sum(o['Answers'])
+            r['total_score'] += o['Points']
             o['Min_Points'] = len(o['Answers'])
+            r['min_score'] += o['Min_Points']
             o['Max_Points'] = len(o['Answers']) * 7
-    with open(settings.DATA_DIR + dir + r['learner_id'] + ".json", "w") as data_out:
-        json.dump(r, data_out)
+
+    if settings.verbosity == True:
+        with open(settings.DATA_DIR + dir + r['learner_id'] + ".json", "w") as data_out:
+            json.dump(r, data_out)
     return r
 
 
+def getAttrs(learner):
+    learner_id = learner.learner_id
+    ed_level = learner.education_level
+    min_attitude = learner.attitude_survey['min_score']
+    tot_attitude = learner.attitude_survey['total_score']
+    min_reaction = learner.reaction_survey['min_score']
+    tot_reaction = learner.reaction_survey['total_score']
+    min_satisfaction = learner.satisfaction_survey['min_score']
+    tot_satisfaction = learner.satisfaction_survey['total_score']
+    the_dict = {'learner_id': learner_id,
+                'education_level': ed_level,
+                'attitude_min': min_attitude,
+                'attitude_total': tot_attitude,
+                'reaction_min': min_reaction,
+                'reaction_total': tot_reaction,
+                'satisfaction_min': min_satisfaction,
+                'satisfaction_total': tot_satisfaction
+                }
+    return the_dict
 
+def getChis(crosstab, variable):
+    chi2, p, dof, ex = sps.chi2_contingency(crosstab)
+    print ex
+    crit = sps.chi2.ppf(q=0.95, df=dof)
+    if (crit < chi2):
+        evaluation = True
+    else:
+        evaluation = False
+
+    obs = crosstab.as_matrix()
+    obs_list = obs.tolist()
+    ex_list = ex.tolist()
+    z_scores = sps.zmap(obs_list, ex_list)
+    z_list = z_scores.tolist()
+    z_indicators = []
+    for z in z_list:
+        z_sig = ["+" if i > 1.96 else "-" if i < -1.96 else " " for i in z]
+        z_indicators.append(z_sig)
+
+    results = {'chi-sq': chi2,
+               'p-val': p,
+               'eval': evaluation,
+               'dof': dof,
+               'explanans': variable,
+               'expected': ex_list,
+               'observed': obs_list,
+               'z_scores': z_indicators,
+               'row_lab': crosstab.index.tolist(),
+               'col_lab': crosstab.columns.tolist()
+               }
+    return results
+
+
+def binning(col, col_min, labels=None):
+    lowest = col_min
+    highest = col_min * 7
+    half = (highest - lowest) / 2
+    break_points = [lowest, (lowest + half), highest]
+    if not labels:
+        labels = range(len(break_points) - 1)
+    colBin = pd.cut(col, bins=break_points, labels=labels, include_lowest=True)
+    return colBin
+
+
+def getRelFreqPlus(a_df, a_var):
+    div = len(a_df)
+    vc = a_df.groupby([a_var, 'education_level']).count()
+    a_dict = vc.to_dict()
+    w_dict = a_dict['learner_id']
+    the_dict = {}
+    for k, v in w_dict.iteritems():
+        the_dict[k] = float(v) / div
+    return the_dict
+
+
+def repackage(the_expls, the_stats):
+    the_dict = {}
+    the_dict['explanandum'] = the_expls
+    the_dict['explanans'] = the_stats['explanans']
+    the_dict['active'] = the_stats['eval']
+
+    the_data = {}
+    the_data['rows'] = the_stats['row_lab']
+    the_data['cols'] = the_stats['col_lab']
+    the_data['obs_frequencies'] = the_stats['observed']
+    the_data['exp_frequencies'] = the_stats['expected']
+    the_data['significant'] = the_stats['z_scores']
+
+    the_dict['data'] = the_data
+    return the_dict

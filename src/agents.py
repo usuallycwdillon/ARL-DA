@@ -61,7 +61,7 @@ class Learner():
         if self.rifle_prof != "None" and self.rifle_prof != "Novice":
             self._is_markstrained = "No"
         else:
-            self._is_markstraining = "Yes"
+            self._is_markstrained = "Yes"
 
         if self.rifle_prof != "None" and self.rifle_prof != "Novice":
             self._last_wp_fire = int(np.random.randint(1, 6, size=1)[0])
@@ -311,7 +311,7 @@ class Course_Offering():
     def append(self, value):
         self._enrollment = self._enrollment + [value]
 
-
+## Old REAPER sim code...
 class ReaperSimulation(object):
     """Construct a data frame of students + marksman scores based on prior probabilities"""
     def __init__(self, learner):
