@@ -1,14 +1,17 @@
-## This is not a valid starting point. 
+#!/usr/bin/env python
+
+## This is not a valid starting point.
 #  This class file defines agents that activate in the learner_xSim.py file.
 
 import random
-import numpy as np 
-from scipy import stats as sps
-import csv
+import numpy as np
+import pandas as pd
 from copy import deepcopy
+
 import data_io
 import settings
 import utility
+
 
 class Learner():
     '''
@@ -26,8 +29,9 @@ class Learner():
         rifle_ex = np.array(["None", "Novice", "Marksman", "Sharpshooter", "Expert"])
         rifle_probs = np.array([0.15, 0.30, 0.25, 0.20, 0.10])
         sex = np.array(["Male", "Female"])
-        sex_prob = np.array([0.70, 0.30])
+        sex_prob = np.array([0.72, 0.28])
         yes_no = np.array(["Yes", "No"])
+
 
         self._learner_id = 'learner' + str(id) + '@example.com'
         self._age = int(random.triangular(18, 45, 19))
@@ -91,9 +95,11 @@ class Learner():
         self._pre_lesson_test = {}
         self._post_lesson_test = {}
         self._attitude_survey = {}
-        self._record_fire = []
         self._reaction_survey = {}
         self._satisfaction_survey = {}
+        self._record_fire = None
+        self._rec_fire_rating = 'TBD'
+        self._rec_fire_attempts = 0
 
 
     @property
@@ -106,87 +112,87 @@ class Learner():
 
     @property
     def gender(self):
-      return self._gender
+        return self._gender
 
     @property
     def education_level(self):
-      return self._education_level
+        return self._education_level
 
     @property
     def years_active_service(self):
-      return self._years_active_service
+        return self._years_active_service
 
     @property
     def years_reserve_servce(self):
-      return self._years_reserve_service
+        return self._years_reserve_service
 
     @property
     def job_specialty(self):
-      return self._job_specialty
+        return self._job_specialty
 
     @property
     def years_job(self):
-      return self._years_job
+        return self._years_job
 
     @property
     def rank_class(self):
-      return self._rank_class
+        return self._rank_class
 
     @property
     def location(self):
-      return self._location
+        return self._location
 
     @property
     def is_deployed(self):
-      return self._is_deployed
+        return self._is_deployed
 
     @property
     def months_deployed(self):
-      return self._months_deployed
+        return self._months_deployed
 
     @property
     def handgun_prof(self):
-      return self._handgun_prof
+        return self._handgun_prof
 
     @property
     def rifle_prof(self):
-      return self._rifle_prof
+        return self._rifle_prof
 
     @property
     def last_wp_fire(self):
-      return self._last_wp_fire
+        return self._last_wp_fire
 
     @property
     def range_hours(self):
-      return self._range_hours
+        return self._range_hours
 
     @property
     def is_markstrained(self):
-      return self._is_markstrained
+        return self._is_markstrained
 
     @property
     def last_markstraining(self):
-      return self._last_markstraining
+        return self._last_markstraining
 
     @property
     def is_gamer(self):
-      return self._is_gamer
+        return self._is_gamer
 
     @property
     def weekly_fps_hours(self):
-      return self._weekly_fps_hours
+        return self._weekly_fps_hours
 
     @property
     def general_anxiety(self):
-      return self._general_anxiety
+        return self._general_anxiety
 
     @property
     def general_self_efficacy(self):
-      return self._general_self_efficacy
+        return self._general_self_efficacy
 
     @property
     def general_motivation(self):
-      return self._general_self_efficacy
+        return self._general_self_efficacy
 
     @property
     def attitude_survey(self):
@@ -202,7 +208,7 @@ class Learner():
 
     @pre_lesson_test.setter
     def pre_lesson_test(self, record):
-       self._pre_lesson_test = {}
+       self._pre_lesson_test = record
 
     @property
     def post_lesson_test(self):
@@ -210,15 +216,15 @@ class Learner():
 
     @post_lesson_test.setter
     def post_lesson_test(self, record):
-       self._post_lesson_test = {}
+       self._post_lesson_test = record
 
     @property
     def record_fire(self):
        return self._record_fire
 
     @record_fire.setter
-    def record_fire(self, record):
-        self._record_fire.append = record
+    def record_fire(self, o):
+        self._record_fire.append = o
 
     @property
     def satisfaction_survey(self):
@@ -236,6 +242,21 @@ class Learner():
     def reaction_survey(self, record):
         self._reaction_survey = record
 
+    @property
+    def rec_fire_rating(self):
+        return self._rec_fire_rating
+
+    @rec_fire_rating.setter
+    def rec_fire_rating(self, record):
+        self._rec_fire_rating = record
+
+    @property
+    def rec_fire_attempts(self):
+        return self._rec_fire_attempts
+
+    @rec_fire_attempts.setter
+    def rec_fire_attempts(self, number):
+        self._rec_fire_attempts = number
 
     def takeAttitudeSurvey(self):
         # No magic here. We must already know that the 0th index of survey_models is the attitude survey
@@ -274,10 +295,66 @@ class Learner():
 
 
     def doRecordFireExercise(self):
-        pass
+        rf = ReaperSimulation()
+        self._record_fire = rf
+        self._rec_fire_attempts += 1
+        self._rec_fire_rating = rf._df['ability'][0]
+        if self._rec_fire_rating == 'Unqualified':
+            self.doRecordFireExercise()
 
 
-class Course_Offering():
+class ReaperSimulation(object):
+    '''
+    Construct a data frame of students' marksman scores based on prior probabilities.
+    '''
+
+    def __init__(self):
+        super(ReaperSimulation, self).__init__()
+
+        # Create empty data frame with these column names
+        self._columns = ['date_time', 'fire_pos', 'round', 'range', 'isHit', 'shot_x', 'shot_y', 'ability']
+        self._df = pd.DataFrame(0, index=xrange(40), columns=self._columns)
+
+        self._df['date_time'] = np.repeat(data_io.getTimeStamp(), 40).tolist()
+
+        # Create list of firing positions
+        fst_pos = np.repeat('Prone_Supported', 20).tolist()
+        snd_pos = np.repeat('Prone_Unsupported', 10).tolist()
+        trd_pos = np.repeat('Kneeling_Unsupported', 10).tolist()
+        self._df['fire_pos'] = fst_pos + snd_pos + trd_pos
+
+        # Create different rounds for each fired position as well as the range
+        fst_pos = [i for i in range(1, 21)]
+        snd_pos = [i for i in range(1, 11)]
+        trd_pos = [i for i in range(1, 11)]
+        self._df['round'] = fst_pos + snd_pos + trd_pos
+
+        range_50 = np.repeat('50m', 6).tolist()
+        range_100 = np.repeat('100m', 8).tolist()
+        range_150 = np.repeat('150m', 11).tolist()
+        range_200 = np.repeat('200m', 8).tolist()
+        range_250 = np.repeat('250m', 5).tolist()
+        range_300 = np.repeat('300m', 2).tolist()
+        self._df['range'] = range_50 + range_100 + range_150 + range_200 + range_250 + range_300
+
+        # Calculate the probability of being expert, marksman, etc and update ability column
+        levels = np.array([1, 2, 3, 4])
+        probs = np.array([0.15, 0.35, 0.45, 0.05])
+        temp = utility.weighted_probs(levels, probs, 1).tolist()
+        return_value = np.repeat(temp, 40)
+        self._df['ability'] = [
+            "Expert" if i == 1 else "Sharpshooter" if i == 2 else "Marksman" if i == 3 else "Unqualified" for i in
+            return_value]
+
+        # Calcualate isHit
+        self._df['isHit'] = [utility.calc_outcomes(i)[0] for i in self._df['ability']]
+        self._df['shot_x'] = [utility.calc_hit(-2.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else utility.calc_miss_x(
+            np.random.randint(0, 1)) for i in self._df['isHit']]
+        self._df['shot_y'] = [utility.calc_hit(-3.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else utility.calc_miss_y(
+            np.random.randint(0, 1)) for i in self._df['isHit']]
+
+
+class Course_Offering(object):
     '''
     A course offering scoops up a bunch of learner agents and puts them through the paces of surveys and record fire
     testing, etc.
@@ -310,161 +387,3 @@ class Course_Offering():
 
     def append(self, value):
         self._enrollment = self._enrollment + [value]
-
-## Old REAPER sim code...
-class ReaperSimulation(object):
-    """Construct a data frame of students + marksman scores based on prior probabilities"""
-    def __init__(self, learner):
-        super(ReaperSimulation, self).__init__()
-
-        # Number of observations
-        self.n = n
-
-        # Create empty data frame with these column names + with n rows
-        self.columns = ['date_time', 'student_id', 'fire_pos', 'round', 'range', 'isHit', 'shot_x', 'shot_y', 'ability']
-        self.df = pd.DataFrame(0, index=xrange(n * 40), columns=self.columns)
-
-        # Create student_ids, accounting for the 40 rounds
-        ids = ["learner" + str(i) + "@example.com" for i in xrange(n)]
-        repl_ids = np.repeat(ids, 40)
-        self.df['student_id'] = repl_ids
-
-        # Create date and time
-        self.df['date'] = ["2-JUN-2016" for i in xrange(len(self.df))]
-        self.df['time'] = self.df['time'].apply(lambda v: np.random.randint(3, 12))
-
-        # Create FirePosition
-        def initFirePos(n):
-            fst_pos = np.repeat('Prone_Supported', 20).tolist()
-            snd_pos = np.repeat('Prone_Unsupported', 10).tolist()
-            trd_pos = np.repeat('Kneeling_Unsupported', 10).tolist()
-
-            temp = fst_pos + snd_pos + trd_pos
-            self.df['fire_pos'] = temp * n
-
-        # Create different rounds for each fired position as well as the range
-        def initRoundRange(n):
-            fst_pos = [i for i in range(1, 21)]
-            snd_pos = [i for i in range(1, 11)]
-            trd_pos = [i for i in range(1, 11)]
-
-            range_50 = np.repeat('50m', 6).tolist()
-            range_100 = np.repeat('100m', 8).tolist()
-            range_150 = np.repeat('150m', 11).tolist()
-            range_200 = np.repeat('200m', 8).tolist()
-            range_250 = np.repeat('250m', 5).tolist()
-            range_300 = np.repeat('300m', 2).tolist()
-
-            shot_range = range_50 + range_100 + range_150 + range_200 + range_250 + range_300
-            temp = fst_pos + snd_pos + trd_pos
-
-            self.df['round'] = temp * n
-            self.df['range'] = shot_range * n
-
-        def initAbility(n):
-            # Calculate the probability of being expert, marksman, etc and update ability column
-            levels = np.array([1, 2, 3, 4])
-            probs = np.array([0.15, 0.35, 0.45, 0.05])
-            temp = weighted_probs(levels, probs, n).tolist()
-            return_value = np.repeat(temp, 40)
-            self.df['ability'] = [
-                "Expert" if i == 1 else "Sharpshooter" if i == 2 else "Marksman" if i == 3 else "Unqualified" for i in
-                return_value]
-
-            # Calcualate isHit
-            self.df['isHit'] = [calc_outcomes(i)[0] for i in self.df['ability']]
-            self.df['shot_x'] = [calc_hit(-2.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else calc_miss_x(
-                np.random.randint(0, 1)) for i in self.df['isHit']]
-            self.df['shot_y'] = [calc_hit(-3.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else calc_miss_y(
-                np.random.randint(0, 1)) for i in self.df['isHit']]
-
-        def calc_outcomes(level):
-            expert = np.array([0.86, 0.13, 0.01])
-            sharp_s = np.array([0.76, 0.22, 0.02])
-            marksman = np.array([0.55, 0.41, 0.04])
-            unqual = np.array([0.33, 0.59, 0.08])
-
-            outcomes = np.array(['Hit', 'Miss', 'No-Fire'])
-
-            if level == "Expert":
-                return weighted_probs(outcomes, expert, 40)
-            elif level == "Sharpshooter":
-                return weighted_probs(outcomes, sharp_s, 40)
-            elif level == "Marksman":
-                return weighted_probs(outcomes, marksman, 40)
-            else:
-                return weighted_probs(outcomes, unqual, 40)
-
-        def weighted_probs(outcomes, probabilities, size):
-            temp = np.add.accumulate(probabilities)
-            return outcomes[np.digitize(random_sample(size), temp)]
-
-        def calc_hit(lo, hi):
-            t = np.random.uniform(lo, hi)
-            return float("{0:.2f}".format(t))
-
-        def calc_miss_x(op):
-            if op == 0:
-                t = np.random.uniform(-21, -3.6)
-                return float("{0:.2f}".format(t))
-            else:
-                t = np.random.uniform(3.6, 21)
-                return float("{0:.2f}".format(t))
-
-        def calc_miss_y(op):
-            if op == 0:
-                t = np.random.uniform(-8, -2.6)
-                return float("{0:.2f}".format(t))
-            else:
-                t = np.random.uniform(2.6, 8)
-                return float("{0:.2f}".format(t))
-
-        def initTryAgain():
-            # make a dataframe of unqulified students
-            offset = len(self.df)
-            df2 = deepcopy(self.df[self.df.ability == 'Unqualified'])
-            # df2.reset_index(inplace=True)
-            nn = len(df2)
-            # Add the new date and time of the exercise
-            dates = ["9-JUN-2016" for i in xrange(nn)]
-            df2['date'] = dates
-            times = df2['time'].apply(lambda v: np.random.randint(3, 12))
-            df2['time'] = times
-            # Recalculate ability
-            # Calculate the probability of being expert, marksman, etc and update ability column
-            levels = np.array([1, 2, 3, 4])
-            probs = np.array([0.10, 0.30, 0.55, 0.05])
-            temp = weighted_probs(levels, probs, (nn / 40)).tolist()
-            return_value = np.repeat(temp, 40)
-            df2['ability'] = [
-                "Expert" if i == 1 else "Sharpshooter" if i == 2 else "Marksman" if i == 3 else "Unqualified" for i in
-                return_value]
-
-            # Calcualate isHit
-            is_hit = [calc_outcomes(i)[0] for i in df2.ability]
-            df2['isHit'] = is_hit
-            shot_x = [calc_hit(-2.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else calc_miss_x(
-                np.random.randint(0, 1)) for i in df2['isHit']]
-            shot_y = [calc_hit(-3.5, 3.5) if i == 'Hit' else np.nan if i == 'No-Fire' else calc_miss_y(
-                np.random.randint(0, 1)) for i in df2['isHit']]
-            print len(shot_x)
-            df2['shot_x'] = shot_x
-            df2['shot_y'] = shot_y
-
-            self.df = pd.concat([self.df, df2])
-            self.df.reset_index(inplace=True)
-
-        initFirePos(n)
-        initRoundRange(n)
-        initAbility(n)
-        initTryAgain()
-
-    def printData(self):
-        print self.df
-
-    def writeCSV(self, name):
-        self.df.to_csv("../data/reaper/" + str(name) + ".csv", orient='index')
-
-    def writeJSON(self, name):
-        self.df.to_json("../data/reaper/" + str(name) + ".json", orient='records')
-

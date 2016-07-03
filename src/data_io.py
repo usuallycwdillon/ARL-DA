@@ -1,14 +1,21 @@
+#!/usr/bin/env python
+
 ## This is not a valid entry point. See learner_xSim.py
 
 import settings
+
+import csv
 import json
 import jsonpickle
 from random import choice
+from numpy import repeat
 import datetime as dtg
+import pandas as pd
 from loremipsum import get_sentences
 from loremipsum import Generator
 from time import gmtime, strftime
 
+global learners
 
 def saveJSON(content, location, name=None):
     data = content
@@ -24,9 +31,12 @@ def saveJSON(content, location, name=None):
         if location == "results":
             print "Saving results..."
             name = d['explanandum'] + ".json"
-            fn = settings.DATA_DIR + dir + name
+            fn = DATA_DIR + dir + name
             with open(fn, 'w') as f:
                 json.dump(d, f)
+
+def saveDF(the_df, loc, the_name):
+    the_df.to_csv(settings.DATA_DIR + loc + the_name + ".csv")
 
 
 def fetchSurvey(dir, file):
@@ -132,5 +142,21 @@ def getTimeStamp(detail = 'short'):
     timestamp = dtg.datetime.now()
     dt = str("%02d"%timestamp.hour) + str("%02d"%timestamp.minute) + "." + str("%02d"%timestamp.second) + "EDT"
     if detail != 'short':
-        dt += "_" + str(timestamp.year) + str("%02d"%timestamp.month) + str("%02d"%timestamp.day)
+        if detail != 'date_only':
+            dt += "-" + str(timestamp.year) + str("%02d"%timestamp.month) + str("%02d"%timestamp.day)
+        else:
+            dt = str(timestamp.year) + str("%02d" % timestamp.month) + str("%02d" % timestamp.day)
     return dt
+
+def saveRecordFire():
+    ls = settings.learners
+    ll = []     #learner list
+    for l in ls:
+        d = l.record_fire._df
+        d['learner_id'] = repeat(l.learner_id, 40).tolist()
+        d['rec_fire_attempts'] = repeat(l.rec_fire_attempts, 40).tolist()
+        ll.append(d)
+    pd.concat(ll).to_csv(settings.DATA_DIR + "reaper/" + "record_fire.csv")
+
+
+

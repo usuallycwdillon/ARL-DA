@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 
 import pandas as pd
@@ -187,8 +187,6 @@ class VarianceAnalyzer(object):
         fpt = Rank(var='FPS_experience', omega=fpw_anova['omega-sq'])
         edt = Rank(var='Education', omega=edw_anova['omega-sq'])
 
-
-
         ranks = [qpt, fpt, edt]
         ranks = sorted(ranks, key=lambda x: x.omega)
 
@@ -276,24 +274,15 @@ class VarianceAnalyzer(object):
 
         for d in descriptions[0:-1]:
             cd = compactor(d)
-            with open("../data/results/" + d['Category'] + "_compact-v2.json", "w") as data_out:
+            with open(DATA_DIR + "results/" + d['Category'] + "_compact-v2.json", "w") as data_out:
                 json.dump(cd, data_out)
-            with open("../data/results/" + d['Category'] + ".json", "w") as data_out:
+            with open(DATA_DIR + "results/" + d['Category'] + ".json", "w") as data_out:
                 json.dump(d, data_out)
 
-        f = open("../data/results/overall.json", "w")
+        f = open(DATA_DIR + "results/" + "overall.json", "w")
         json.dump(descriptions[0], f)
         f.close()
 
-        f = open('../data/var-rankings.json', "w")
+        f = open(DATA_DIR + "results/" + "var-rankings.json", "w")
         json.dump(ranks, f, sort_keys=True)
         f.close()
-
-pre_scores  = "../data/pre_test_responses"
-post_scores = "../data/post_test_responses"
-learners    = "../data/class_data/class.json"
-
-the_format = 'csv'
-# the_format = 'json'
-
-anova = VarianceAnalyzer(learners, pre_scores, post_scores, the_format)

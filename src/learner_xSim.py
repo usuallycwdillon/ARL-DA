@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+
 '''
-This Python script is an agent-based simulation to generate learner experiences in U.S. Army marksmanship training for
+This Python script is an "agent-based" simulation to generate learner experiences in U.S. Army marksmanship training for
 the express purpose of demonstrating how data collected from user learning/training experiences can be used to enhance
 training effectiveness and course evaluation.
 
@@ -22,15 +23,13 @@ __maintainer__ = "Clarence Dillon"
 __email__ = "clarence.dillon@icfi.com"
 __status__ = "Beta"
 
-from random import randrange
-import json
+
 from copy import copy
-import pandas as pd
-import scipy.stats as sps
+
 import settings
 import agents
 import data_io
-import utility
+# import analytics
 
 global learners
 
@@ -56,7 +55,8 @@ settings.survey_models = data_io.parseSurvey(settings.surveys)
 
 ## Generate learners (learner profiles) to be saved/retreived from the LRS
 learners = [agents.Learner(x) for x in xrange(settings.MIN_STUS)]
-if settings.verbosity == True: data_io.saveJSON(settings.learners, "learners")
+settings.learners = learners
+if settings.verbosity == True: data_io.saveJSON(settings.learners, "graduates/", "learners")
 
 ## In batches of COURSE_SIZE at a time, learners will start the marksmanship training course in one of several offerings.
 #  So, we have to first create course section offerings
@@ -80,9 +80,13 @@ for co in settings.course_sections:
         enrolled_learner.takeAttitudeSurvey()
         enrolled_learner.takePreLessonSurvey()
         enrolled_learner.takePostLessonSurvey()
-        #enrolled_learner.doRecordFireExercise()
+        enrolled_learner.doRecordFireExercise()
         enrolled_learner.takeReactionSurvey()
         enrolled_learner.takeSatisfactionSurvey()
+
+data_io.saveRecordFire()
+
+
 
 ########################################################################################################################
 #
@@ -91,42 +95,7 @@ for co in settings.course_sections:
 ########################################################################################################################
 
 
-
-l = len(learners)
-idx = xrange(l)
-cols = ['learner_id', 'education_level', 'attitude_min', 'attitude_total', 'reaction_min', 'reaction_total',
-        'satisfaction_min', 'satisfaction_total']
-df = pd.DataFrame(0, index=idx, columns=cols)
-survey_results = [utility.getAttrs(l) for l in learners]
-df = pd.DataFrame(survey_results)
-
-
-labels = ["low", "high"]
-df['attitude_bin'] = utility.binning(df['attitude_total'], df['attitude_min'][0], labels=labels)
-df['reaction_bin'] = utility.binning(df['reaction_total'], df['reaction_min'][0], labels=labels)
-df['satisfaction_bin'] = utility.binning(df['satisfaction_total'], df['satisfaction_min'][0], labels=labels)
-
-ed_ct_at = pd.crosstab(df.education_level, df.attitude_bin).apply(lambda row: row / row.sum(), axis=1)
-ed_ct_re = pd.crosstab(df.education_level, df.reaction_bin).apply(lambda row: row / row.sum(), axis=1)
-ed_ct_sa = pd.crosstab(df.education_level, df.attitude_bin).apply(lambda row: row / row.sum(), axis=1)
-
-at_rf = utility.getRelFreqPlus(df, df.attitude_bin)
-re_rf = utility.getRelFreqPlus(df, df.reaction_bin)
-sa_rf = utility.getRelFreqPlus(df, df.satisfaction_bin)
-
-at_chi = utility.getChis(ed_ct_at, 'education_level')
-re_chi = utility.getChis(ed_ct_re, 'education_level')
-sa_chi = utility.getChis(ed_ct_sa, 'education_level')
-chis = [at_chi, re_chi, sa_chi]
-
-explanans = ['Task Attitude', 'Course Reaction', 'Course Satisfaction']
-
-plottables = []
-for i in range(0,3):
-    po = utility.repackage(explanans[i], chis[i])
-    plottables.append(po)
-
-data_io.saveJSON(plottables, "results")
-
+# The code that produces analytics results has been removed from this appendix to be delivered with the engineering team's
+# technical solution.
 
 

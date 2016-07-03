@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # This is not a valid entry point.
 from loremipsum import Generator
 from loremipsum import get_sentences
@@ -34,10 +36,11 @@ def init():
     debuging = False
     verbosity = False
     timestamp = None
+    survey_models = None
 
     # initialize configuration settings and globals
     COURSE_SIZE = 400
-    MIN_STUS = 400  # future versions will have this be an input from the webpage
+    MIN_STUS = 10000  # future versions will have this be an input from the webpage
     if MIN_STUS % COURSE_SIZE != 0:
         MIN_STUS = MIN_STUS + (COURSE_SIZE - (MIN_STUS % COURSE_SIZE))
 

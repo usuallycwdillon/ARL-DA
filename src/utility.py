@@ -1,4 +1,6 @@
-# This is not a valid entry point.
+#!/usr/bin/env python
+
+# This file is part of the learner_xSim.py module. It is not a valid entry point.
 
 import random
 from numpy.random import random_sample, choice
@@ -17,21 +19,20 @@ global learners
 # whether for pre-lesson test or post-lesson test. That list is the survey_responses.
 survey_responses = []
 
-#Return random values between low and high
+# Return random values between low and high
 def rand_range(lo, high, n):
     return np.random.randint(lo,high,n).tolist()
 
-
+# Return a set of weighted probabilities
 def weighted_probs(outcomes, probabilities, size):
     temp = np.add.accumulate(probabilities)
     return outcomes[np.digitize(random_sample(size), temp)]
-
 
 # Return probabilities between 0 and 1
 def rand_prob(n):
     return np.random.random(n).tolist()
 
-
+# Function to return 'hit' or 'miss' in the record fire simulation based on self-assessed marksmanship levels
 def calculateProbabilities(rating, post):
     if rating == "Unexperienced":
         temp = rand_prob(1)[0]
@@ -82,7 +83,45 @@ def calculateProbabilities(rating, post):
             probs = [0.04, 0.96]
             return weighted_probs(outcomes, probs, 1)
 
+def calc_hit(lo, hi):
+    t = np.random.uniform(lo, hi)
+    return float("{0:.2f}".format(t))
 
+def calc_miss_x(op):
+    if op == 0:
+        t = np.random.uniform(-21, -3.6)
+        return float("{0:.2f}".format(t))
+    else:
+        t = np.random.uniform(3.6, 21)
+        return float("{0:.2f}".format(t))
+
+def calc_miss_y(op):
+    if op == 0:
+        t = np.random.uniform(-8, -2.6)
+        return float("{0:.2f}".format(t))
+    else:
+        t = np.random.uniform(2.6, 8)
+        return float("{0:.2f}".format(t))
+
+def calc_outcomes(level):
+    expert = np.array([0.86, 0.13, 0.01])
+    sharp_s = np.array([0.76, 0.22, 0.02])
+    marksman = np.array([0.55, 0.41, 0.04])
+    unqual = np.array([0.33, 0.59, 0.08])
+
+    outcomes = np.array(['Hit', 'Miss', 'No-Fire'])
+
+    if level == "Expert":
+        return weighted_probs(outcomes, expert, 40)
+    elif level == "Sharpshooter":
+        return weighted_probs(outcomes, sharp_s, 40)
+    elif level == "Marksman":
+        return weighted_probs(outcomes, marksman, 40)
+    else:
+        return weighted_probs(outcomes, unqual, 40)
+
+
+# Function to answer knowledge survey questions, based on rifle experience
 def fillInAnswer(actual_matrix, rifle_exp, survey_index):
     prob_correctness = calculateProbabilities(rifle_exp, survey_index)
     # print prob_correctness
@@ -112,6 +151,7 @@ def fillInAnswer(actual_matrix, rifle_exp, survey_index):
         return l
 
 
+# Fuction to calculate scores from multiple choice questions based on survey-defined weights.
 def calculateScore(answer_matrix, actual_matrix):
     score_matrix = [0, 0, 0, 0]
     for i in range(len(answer_matrix)):
@@ -119,6 +159,7 @@ def calculateScore(answer_matrix, actual_matrix):
     return max(score_matrix)
 
 
+# Helper function to construct responses to blank tests
 def constructResponse(learner_id, rifle_prof, blank_response, dir, post):
     '''
     In the wild, we would expect each of the above surveys (not pages) to be stored into the LRS as the learner completes
@@ -148,11 +189,14 @@ def constructResponse(learner_id, rifle_prof, blank_response, dir, post):
 
 def agreement(mu):
     k = [0, 1, 2, 3, 4, 5, 6]  # index values, not answer weights
-    p = sps.binom.pmf(range(7), 3, mu, loc=1)
-    if sum(p) != 1.00:
-        d = 1.00 - sum(p)
+    p = sps.binom.pmf(range(7), 7, mu)
+    # print p
+    if sum(p) != 1.000:
+        d = 1.000 - sum(p)
         if d > 0:
-            p[6] = d
+            p[6] = p[6] + d
+        else:
+            p[1] = p[1] + d
     val = choice(k, 1, p=p)[0]
     return val
 
@@ -160,13 +204,13 @@ def agreement(mu):
 def fillBubbles(survey_object, ed, mea):
     o = survey_object
     answer_list = []
-    survey_matrix = {"GED": [0.21, 0.20, 0.21, 0],
-                     "High School": [0.23, 0.22, 0.21, 0],
-                     "Some College": [0.36, 0.34, 0.30, 0],
-                     "Associates Degree": [0.34, 0.34, 0.38, 0],
-                     "Bachelors Degree": [0.42, 0.38, 0.48, 0],
-                     "Masters Degree": [0.62, 0.70, 0.42, 0],
-                     "Doctoral Degree": [0.61, 0.48, 0.46, 0]
+    survey_matrix = {"GED": [0.25, 0.20, 0.21, 0],
+                     "High School": [0.30, 0.28, 0.26, 0],
+                     "Some College": [0.40, 0.34, 0.41, 0],
+                     "Associates Degree": [0.42, 0.44, 0.47, 0],
+                     "Bachelors Degree": [0.51, 0.47, 0.45, 0],
+                     "Masters Degree": [0.62, 0.58, 0.63, 0],
+                     "Doctoral Degree": [0.71, 0.88, 0.91, 0]
                      }
     i = 0
     a = 0
@@ -182,12 +226,12 @@ def fillBubbles(survey_object, ed, mea):
     elif o['Category'] == 'Not Categorized':
         a = 1 - sum(mea)/3
         i = 3
-    par = survey_matrix[ed][i]
-    lo = min(a, par)
-    hi = max(a, par)
-    mu = random.uniform(lo, hi)
-    for a in o['Answers']:
-        iv = agreement(mu)
+    # par = survey_matrix[ed][i]
+    # lo = min(a, par)
+    # hi = max(a, par)
+    # mu = random.uniform(lo, hi)
+    for v in o['Answers']:
+        iv = agreement(a)
         ans = o['Weights'][iv]
         answer_list.append(ans)
     return answer_list
@@ -236,7 +280,8 @@ def getAttrs(learner):
 
 def getChis(crosstab, variable):
     chi2, p, dof, ex = sps.chi2_contingency(crosstab)
-    print ex
+    x = sps.chi2_contingency(crosstab)
+
     crit = sps.chi2.ppf(q=0.95, df=dof)
     if (crit < chi2):
         evaluation = True
@@ -264,14 +309,17 @@ def getChis(crosstab, variable):
                'row_lab': crosstab.index.tolist(),
                'col_lab': crosstab.columns.tolist()
                }
+    print results
     return results
 
 
 def binning(col, col_min, labels=None):
     lowest = col_min
     highest = col_min * 7
-    half = (highest - lowest) / 2
-    break_points = [lowest, (lowest + half), highest]
+    diff = (highest - lowest)
+    cent = diff/100.0
+    break_points = [lowest, (lowest + int(50 * cent)), (highest - int(25 * cent)), highest]
+    print break_points
     if not labels:
         labels = range(len(break_points) - 1)
     colBin = pd.cut(col, bins=break_points, labels=labels, include_lowest=True)
